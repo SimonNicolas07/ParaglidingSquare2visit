@@ -66,6 +66,7 @@
   <div class="box">
     <p>Choose grid center:</p>
     <button onclick="startWithFayolle()">Fayolle</button>
+    <button onclick="startWithLaMarie()">La Marie</button>
     <button onclick="startWithGPS()">Around Me</button>
   </div>
 </div>
@@ -79,10 +80,26 @@
   let pathLine = null;
   let arrowMarker = null;
   const gridSizeMeters = 200;  // CHANGED to 200m
-  const areaSizeMeters = 3000;
+  const areaSizeMeters = 6000;
   let totalSquares = 0;
   let lastLat = null;
   let lastLng = null;
+
+   // Wake lock to keep screen on
+  let wakeLock = null;
+  async function requestWakeLock() {
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => {
+        console.log('Wake lock released');
+      });
+    } catch (err) {
+      console.error('Wake Lock Error:', err.name, err.message);
+    }
+  }
+  if ('wakeLock' in navigator) {
+    document.addEventListener('DOMContentLoaded', requestWakeLock);
+  }
 
   function metersToDegreesLat(meters) {
     return meters / 111320;
@@ -213,6 +230,10 @@
   function startWithFayolle() {
     initMap(46.1083495, 4.6189530, true);
   }
+
+  function startWithLaMarie() {
+    initMap(46.084143, 4.608334, true);
+  } 
 
   function startWithGPS() {
     navigator.geolocation.getCurrentPosition(pos => {
