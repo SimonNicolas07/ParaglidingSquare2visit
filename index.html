@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GPS Grid with Arrow</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #map {
+      height: 100%;
+      width: 100vw;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #counter {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      font-family: sans-serif;
+      font-size: 16px;
+      border-radius: 5px;
+      z-index: 1000;
+    }
+    .arrow-marker {
+      width: 10px;
+      height: 10px;
+      background: green;
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      transform-origin: center;
+    }
+  </style>
+</head>
+<body>
+<div id="counter">Visited squares: 0 / 0</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map');
+
+  L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17,
+    attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
+  }).addTo(map);
+
+  const grid = [];
+  const visitedCells = new Set();
+  const pathCoords = [];
+  let pathLine = null;
+  let arrowMarker = null;
+
+  const gridSizeMeters = 100;
+  const areaSizeMeters = 3000;
+  let totalSquares = 0;
+  let lastLat = null;
+  let lastLng = null;
+
+  function metersToDegreesLat(meters) {
+    return meters / 111320;
+  }
+
+  function metersToDegreesLng(meters, latitude) {
+    return meters / (40075000 * Math.cos(latitude * Math.PI / 180) / 360);
+  }
+
+  function snapToGrid(value, step) {
+    return Math.floor(value / step) * step;
+  }
+
+  function updateCounter() {
+    document.getElementById('counter').textContent =
+      `Visited squares: ${visitedCells.size} / ${totalSquares}`;
+  }
+
+  function createGrid(centerLat, centerLng) {
+    const rows = Math.floor(areaSizeMeters / gridSizeMeters);
+    const cols = rows;
+    totalSquares = rows * cols;
+    updateCounter();
+
+    const deltaLat = metersToDegreesLat(gridSizeMeters);
+    const deltaLng = metersToDegreesLng(gridSizeMeters, centerLat);
+
+    const startLat = snapToGrid(centerLat, deltaLat) - (rows/2) * deltaLat;
+    const startLng = snapToGrid(centerLng, deltaLng) - (cols/2) * deltaLng;
+
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        const south = startLat + i * deltaLat;
+        const west = startLng + j * deltaLng;
+        const north = south + deltaLat;
+        const east = west + deltaLng;
+
+        const bounds = [[south, west], [north, east]];
+        const rect = L.rectangle(bounds, {
+          color: "#000",
+          weight: 1,
+          fillOpacity: 0.1
+        }).addTo(map);
+        grid.push({ bounds, rect, visited: false });
+      }
+    }
+  }
+
+  function highlightCurrentSquare(lat, lng) {
+    grid.forEach(cell => {
+      const [[south, west], [north, east]] = cell.bounds;
+      const key = `${south.toFixed(5)}_${west.toFixed(5)}`;
+
+      if (
+        lat >= south && lat <= north &&
+        lng >= west && lng <= east &&
+        !visitedCells.has(key)
+      ) {
+        cell.rect.setStyle({ color: "red", fillOpacity: 0.5 });
+        visitedCells.add(key);
+        cell.visited = true;
+        updateCounter();
+      } else if (!cell.visited) {
+        cell.rect.setStyle({ color: "#000", fillOpacity: 0.1 });
+      }
+    });
+  }
+
+  function updatePath(lat, lng) {
+    pathCoords.push([lat, lng]);
+    if (pathLine) {
+      map.removeLayer(pathLine);
+    }
+    pathLine = L.polyline(pathCoords, {
+      color: "yellow",
+      weight: 3
+    }).addTo(map);
+  }
+
+  function updateArrow(lat, lng) {
+    if (arrowMarker) {
+      map.removeLayer(arrowMarker);
+    }
+
+    let angle = 0;
+    if (lastLat !== null && lastLng !== null) {
+      const dx = lng - lastLng;
+      const dy = lat - lastLat;
+      angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    }
+
+    const divIcon = L.divIcon({
+      className: '',
+      html: `<div class="arrow-marker" style="transform: rotate(${angle}deg);"></div>`,
+      iconSize: [10, 10],
+      iconAnchor: [5, 5]
+    });
+
+    arrowMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
+
+    lastLat = lat;
+    lastLng = lng;
+  }
+
+  navigator.geolocation.getCurrentPosition(position => {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+
+    map.setView([lat, lng], 15); // Dezoomed to level 15
+    createGrid(lat, lng);
+
+    updatePath(lat, lng);
+    highlightCurrentSquare(lat, lng);
+    updateArrow(lat, lng);
+
+    navigator.geolocation.watchPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      highlightCurrentSquare(lat, lng);
+      updatePath(lat, lng);
+      updateArrow(lat, lng);
+    }, err => {
+      alert("Failed to get position: " + err.message);
+    }, {
+      enableHighAccuracy: true,
+      maximumAge: 0
+    });
+
+  }, error => {
+    alert("Could not get your position: " + error.message);
+  });
+</script>
+</body>
+</html>
