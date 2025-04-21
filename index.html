@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GPS Grid with Arrow</title>
+  <title>GPS Grid Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -16,6 +16,7 @@
       position: absolute;
       top: 0;
       left: 0;
+      z-index: 0;
     }
     #counter {
       position: absolute;
@@ -28,6 +29,25 @@
       font-size: 16px;
       border-radius: 5px;
       z-index: 1000;
+    }
+    #startup-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    #startup-modal .box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      font-family: sans-serif;
+      text-align: center;
     }
     .arrow-marker {
       width: 10px;
@@ -42,22 +62,23 @@
 <div id="counter">Visited squares: 0 / 0</div>
 <div id="map"></div>
 
+<div id="startup-modal">
+  <div class="box">
+    <p>Choose grid center:</p>
+    <button onclick="startWithFayolle()">Fayolle</button>
+    <button onclick="startWithGPS()">Around Me</button>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
   const map = L.map('map');
-
-  L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-    maxZoom: 17,
-    attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
-  }).addTo(map);
-
-  const grid = [];
+  let grid = [];
   const visitedCells = new Set();
   const pathCoords = [];
   let pathLine = null;
   let arrowMarker = null;
-
-  const gridSizeMeters = 200;
+  const gridSizeMeters = 200;  // CHANGED to 200m
   const areaSizeMeters = 3000;
   let totalSquares = 0;
   let lastLat = null;
@@ -124,17 +145,13 @@
         visitedCells.add(key);
         cell.visited = true;
         updateCounter();
-      } else if (!cell.visited) {
-        cell.rect.setStyle({ color: "#000", fillOpacity: 0.1 });
       }
     });
   }
 
   function updatePath(lat, lng) {
     pathCoords.push([lat, lng]);
-    if (pathLine) {
-      map.removeLayer(pathLine);
-    }
+    if (pathLine) map.removeLayer(pathLine);
     pathLine = L.polyline(pathCoords, {
       color: "yellow",
       weight: 3
@@ -142,10 +159,7 @@
   }
 
   function updateArrow(lat, lng) {
-    if (arrowMarker) {
-      map.removeLayer(arrowMarker);
-    }
-
+    if (arrowMarker) map.removeLayer(arrowMarker);
     let angle = 0;
     if (lastLat !== null && lastLng !== null) {
       const dx = lng - lastLng;
@@ -161,39 +175,54 @@
     });
 
     arrowMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
-
     lastLat = lat;
     lastLng = lng;
   }
 
-  navigator.geolocation.getCurrentPosition(position => {
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
+  function initMap(centerLat, centerLng, useGPS = true) {
+    document.getElementById('startup-modal').style.display = 'none';
+    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      maxZoom: 17,
+      attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
+    }).addTo(map);
 
-    map.setView([lat, lng], 15); // Dezoomed to level 15
-    createGrid(lat, lng);
+    map.setView([centerLat, centerLng], 15);
+    createGrid(centerLat, centerLng);
 
-    updatePath(lat, lng);
-    highlightCurrentSquare(lat, lng);
-    updateArrow(lat, lng);
+    if (useGPS) {
+      navigator.geolocation.watchPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        highlightCurrentSquare(lat, lng);
+        updatePath(lat, lng);
+        updateArrow(lat, lng);
+      }, err => {
+        alert("GPS error: " + err.message);
+      }, {
+        enableHighAccuracy: true,
+        maximumAge: 0
+      });
+    } else {
+      // Just center map without GPS follow
+      highlightCurrentSquare(centerLat, centerLng);
+      updatePath(centerLat, centerLng);
+      updateArrow(centerLat, centerLng);
+    }
+  }
 
-    navigator.geolocation.watchPosition(pos => {
+  function startWithFayolle() {
+    initMap(46.1083495, 4.6189530, true);
+  }
+
+  function startWithGPS() {
+    navigator.geolocation.getCurrentPosition(pos => {
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
-
-      highlightCurrentSquare(lat, lng);
-      updatePath(lat, lng);
-      updateArrow(lat, lng);
+      initMap(lat, lng, true);
     }, err => {
-      alert("Failed to get position: " + err.message);
-    }, {
-      enableHighAccuracy: true,
-      maximumAge: 0
+      alert("GPS error: " + err.message);
     });
-
-  }, error => {
-    alert("Could not get your position: " + error.message);
-  });
+  }
 </script>
 </body>
 </html>
