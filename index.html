@@ -109,6 +109,22 @@
 #saveButton:hover {
   background: #218838;
 }
+#leaderboardButton {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1100;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  padding: 12px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+#leaderboardButton:hover {
+  background: #0056b3;
+}
 
   </style>
 </head>
@@ -126,6 +142,7 @@
   </div>
 
   <button id="saveButton" onclick="handleSave()" title="Save score">💾 Save</button>
+  <a href="leaderboard.html" id="leaderboardButton" title="View leaderboard">🏆 Ranking</a>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
