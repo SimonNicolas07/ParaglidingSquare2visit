@@ -37,10 +37,27 @@
     th {
       background: #fafafa;
     }
+  #backButton {
+  display: inline-block;
+  background: #28a745;
+  color: white;
+  text-decoration: none;
+  padding: 10px 18px;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: background 0.3s ease;
+}
+#backButton:hover {
+  background: #218838;
+}
   </style>
 </head>
 <body>
   <h1>🏆 Paragliding Mesh Leaderboard</h1>
+  <div style="text-align: center; margin-bottom: 20px;">
+  <a href="index.html" id="backButton">← Back to Map</a>
+  </div>
   <div id="leaderboard">Loading...</div>
 
   <!-- ✅ Firebase v8 SDKs -->
@@ -88,7 +105,9 @@
       const percent = ((entry.score / TOTAL_SQUARES) * 100).toFixed(1);
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${index + 1}</td>
+        <td>
+        ${index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : index + 1}
+        </td>
         <td>${entry.pseudo}</td>
         <td>${entry.score}</td>
         <td>${percent}%</td>
