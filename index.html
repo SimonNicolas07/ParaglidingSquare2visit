@@ -75,6 +75,26 @@
       clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
       transform-origin: center;
     }
+    
+  #saveButton {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1100;
+  padding: 12px 16px;
+  font-size: 16px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+#saveButton:hover {
+  background: #218838;
+}
+
   </style>
 
   <script>
@@ -104,6 +124,8 @@
       <button onclick="startWithGPS()">Around Me</button>
     </div>
   </div>
+
+  <button id="saveButton" onclick="handleSave()" title="Save score">💾 Save</button>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
@@ -299,6 +321,14 @@
 
       alert("Score saved!");
     }
+    function handleSave() {
+      const currentGridType =
+    map.getCenter().lat.toFixed(4) === "46.1083" ? "Fayolle" :
+    map.getCenter().lat.toFixed(4) === "46.0841" ? "La Marie" :
+    "Around me";
+
+  saveSession(currentGridType, visitedCells.size);
+}
   </script>
 </body>
 </html>
