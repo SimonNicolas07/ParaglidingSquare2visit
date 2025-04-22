@@ -270,9 +270,10 @@
 
     function initMap(centerLat, centerLng, useGPS = true) {
       document.getElementById('startup-modal').style.display = 'none';
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap & CartoDB',
+      subdomains: 'abcd',
+      maxZoom: 19
       }).addTo(map);
 
       map.setView([centerLat, centerLng], 14);
@@ -372,6 +373,10 @@ async function saveSession(gridType, visitedCount) {
     document.body.appendChild(badge);
 
     // Capture full app view
+    await new Promise(resolve => {
+    map.once("idle", () => setTimeout(resolve, 500));
+    });
+
     const canvas = await html2canvas(document.body);
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
 
