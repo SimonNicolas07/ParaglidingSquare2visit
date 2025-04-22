@@ -169,60 +169,73 @@ function startWithGPS() {
   });
 }
 
-function saveSession(gridType, visitedCount) {
+async function saveSession(gridType, visitedCount) {
   try {
     const pseudo = prompt("Enter your pseudo:");
     if (!pseudo) return;
 
-    db.collection("scores").add({
+    // Convert visited bounds to Firestore-safe data
+    const visited = Array.from(visitedCells).map(key => {
+      const [south, west] = key.split("_").map(Number);
+      const deltaLat = metersToDegreesLat(gridSizeMeters);
+      const deltaLng = metersToDegreesLng(gridSizeMeters, south);
+      const north = south + deltaLat;
+      const east = west + deltaLng;
+      return { south, west, north, east };
+    });
+
+    // Save the simplified structure
+    const docRef = await db.collection("scores").add({
       pseudo,
       score: visitedCount,
       gridType,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      visitedBounds,
-      pathCoords,
-    }).then(docRef => {
-      console.log("Score saved with ID:", docRef.id);
-
-      const badge = document.createElement("div");
-      badge.style.position = "absolute";
-      badge.style.top = "10px";
-      badge.style.left = "10px";
-      badge.style.padding = "12px 16px";
-      badge.style.background = "rgba(0, 0, 0, 0.7)";
-      badge.style.color = "white";
-      badge.style.fontSize = "16px";
-      badge.style.fontFamily = "sans-serif";
-      badge.style.borderRadius = "8px";
-      badge.style.zIndex = "9999";
-      badge.innerHTML = `
-        <strong>${gridType}</strong><br>
-        🧍 ${pseudo}<br>
-        📈 ${visitedCount} squares<br>
-        📅 ${new Date().toLocaleDateString()}
-      `;
-      document.body.appendChild(badge);
-
-      const tip = document.createElement("div");
-      tip.textContent = "📸 Don't forget to take a screenshot!";
-      tip.style.position = "absolute";
-      tip.style.bottom = "80px";
-      tip.style.left = "50%";
-      tip.style.transform = "translateX(-50%)";
-      tip.style.background = "rgba(0,0,0,0.8)";
-      tip.style.color = "white";
-      tip.style.padding = "10px 20px";
-      tip.style.borderRadius = "8px";
-      tip.style.fontSize = "16px";
-      tip.style.zIndex = "9999";
-      document.body.appendChild(tip);
-
-      setTimeout(() => {
-        if (tip.parentNode) document.body.removeChild(tip);
-      }, 5000);
-
-      alert("✅ Score saved!\n📸 Don't forget to take a screenshot now!");
+      pathCoords: pathCoords.map(([lat, lng]) => ({ lat, lng })),
+      visitedBounds: visited
     });
+
+    console.log("Score saved with ID:", docRef.id);
+
+    // Show badge and tip as before
+    const badge = document.createElement("div");
+    badge.style.position = "absolute";
+    badge.style.top = "10px";
+    badge.style.left = "10px";
+    badge.style.padding = "12px 16px";
+    badge.style.background = "rgba(0, 0, 0, 0.7)";
+    badge.style.color = "white";
+    badge.style.fontSize = "16px";
+    badge.style.fontFamily = "sans-serif";
+    badge.style.borderRadius = "8px";
+    badge.style.zIndex = "9999";
+    badge.innerHTML = `
+      <strong>${gridType}</strong><br>
+      🧍 ${pseudo}<br>
+      📈 ${visitedCount} squares<br>
+      📅 ${new Date().toLocaleDateString()}
+    `;
+    document.body.appendChild(badge);
+
+    const tip = document.createElement("div");
+    tip.textContent = "📸 Don't forget to take a screenshot!";
+    tip.style.position = "absolute";
+    tip.style.bottom = "80px";
+    tip.style.left = "50%";
+    tip.style.transform = "translateX(-50%)";
+    tip.style.background = "rgba(0,0,0,0.8)";
+    tip.style.color = "white";
+    tip.style.padding = "10px 20px";
+    tip.style.borderRadius = "8px";
+    tip.style.fontSize = "16px";
+    tip.style.zIndex = "9999";
+    document.body.appendChild(tip);
+
+    setTimeout(() => {
+      if (tip.parentNode) document.body.removeChild(tip);
+    }, 5000);
+
+    alert("✅ Score saved!\n📸 Don't forget to take a screenshot now!");
+
   } catch (err) {
     console.error("Save error:", err);
     alert("Something went wrong: " + err.message);
