@@ -307,32 +307,10 @@ async function saveSession(gridType, visitedCount) {
       return;
     }
 
-    const mapElement = document.getElementById("map");
-    const canvas = await html2canvas(mapElement);
-    console.log("Canvas captured");
-
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-    if (!blob) {
-      console.error("Failed to create blob from canvas");
-      return;
-    }
-    console.log("Blob created");
-
-    const filename = `screenshots/${pseudo}_${Date.now()}.png`;
-    const fileRef = storage.ref().child(filename);
-    console.log("Uploading to:", filename);
-
-    await fileRef.put(blob);
-    console.log("Upload complete");
-
-    const screenshotURL = await fileRef.getDownloadURL();
-    console.log("Download URL:", screenshotURL);
-
     const docRef = await db.collection("scores").add({
       pseudo: pseudo,
       score: visitedCount,
       gridType: gridType,
-      screenshot: screenshotURL,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 
@@ -343,6 +321,7 @@ async function saveSession(gridType, visitedCount) {
     alert("Something went wrong: " + err.message);
   }
 }
+
     
     function handleSave() {
       const currentGridType =
