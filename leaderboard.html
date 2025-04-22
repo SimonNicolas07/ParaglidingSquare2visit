@@ -47,89 +47,94 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCrzvPBLBF4M3J03xa6VJzcsdvk00vQ7RY",
-      authDomain: "paraglidingmeshleaderboard.firebaseapp.com",
-      projectId: "paraglidingmeshleaderboard"
-    };
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCrzvPBLBF4M3J03xa6VJzcsdvk00vQ7RY",
+    authDomain: "paraglidingmeshleaderboard.firebaseapp.com",
+    projectId: "paraglidingmeshleaderboard"
+  };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-    function renderTable(data, gridType) {
-      const container = document.getElementById("leaderboard");
-      const section = document.createElement("div");
-      section.classList.add("grid-group");
+  const TOTAL_SQUARES = 900; // 6km x 6km at 200m = 30x30 = 900 squares
 
-      const title = document.createElement("div");
-      title.classList.add("grid-title");
-      title.textContent = `Grid: ${gridType}`;
-      section.appendChild(title);
+  function renderTable(data, gridType) {
+    const container = document.getElementById("leaderboard");
+    const section = document.createElement("div");
+    section.classList.add("grid-group");
 
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      thead.innerHTML = `
-        <tr>
-          <th>Rank</th>
-          <th>Pseudo</th>
-          <th>Score</th>
-          <th>Date</th>
-        </tr>
+    const title = document.createElement("div");
+    title.classList.add("grid-title");
+    title.textContent = `Grid: ${gridType}`;
+    section.appendChild(title);
+
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    thead.innerHTML = `
+      <tr>
+        <th>Rank</th>
+        <th>Pseudo</th>
+        <th>Score</th>
+        <th>% Grid</th>
+        <th>Date</th>
+      </tr>
+    `;
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    data.slice(0, 10).forEach((entry, index) => {
+      const percent = ((entry.score / TOTAL_SQUARES) * 100).toFixed(1);
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${entry.pseudo}</td>
+        <td>${entry.score}</td>
+        <td>${percent}%</td>
+        <td>${entry.timestamp?.toDate().toLocaleDateString() || ''}</td>
       `;
-      table.appendChild(thead);
+      tbody.appendChild(row);
+    });
 
-      const tbody = document.createElement("tbody");
+    table.appendChild(tbody);
+    section.appendChild(table);
+    container.appendChild(section);
+  }
 
-      data.forEach((entry, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${index + 1}</td>
-          <td>${entry.pseudo}</td>
-          <td>${entry.score}</td>
-          <td>${entry.timestamp?.toDate().toLocaleDateString() || ''}</td>
-        `;
-        tbody.appendChild(row);
-      });
+  db.collection("scores")
+    .orderBy("score", "desc")
+    .orderBy("timestamp", "desc")
+    .get()
+    .then(snapshot => {
+      document.getElementById("leaderboard").innerHTML = "";
 
-      table.appendChild(tbody);
-      section.appendChild(table);
-      container.appendChild(section);
-    }
+      const dataByGrid = {};
 
-    db.collection("scores")
-      .orderBy("score", "desc")
-      .orderBy("timestamp", "desc")
-      .get()
-      .then(snapshot => {
-        document.getElementById("leaderboard").innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const grid = data.gridType || "Unknown";
 
-        const dataByGrid = {};
-
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          const grid = data.gridType || "Unknown";
-
-          if (!dataByGrid[grid]) {
-            dataByGrid[grid] = [];
-          }
-
-          dataByGrid[grid].push(data);
-        });
-
-        Object.entries(dataByGrid).forEach(([gridType, entries]) => {
-          renderTable(entries, gridType);
-        });
-
-        if (Object.keys(dataByGrid).length === 0) {
-          document.getElementById("leaderboard").innerHTML = "<p>No scores yet.</p>";
+        if (!dataByGrid[grid]) {
+          dataByGrid[grid] = [];
         }
-      })
-      .catch(err => {
-        document.getElementById("leaderboard").innerHTML =
-          "<p>Error loading leaderboard.</p>";
-        console.error(err);
+
+        dataByGrid[grid].push(data);
       });
-  </script>
+
+      Object.entries(dataByGrid).forEach(([gridType, entries]) => {
+        renderTable(entries, gridType);
+      });
+
+      if (Object.keys(dataByGrid).length === 0) {
+        document.getElementById("leaderboard").innerHTML = "<p>No scores yet.</p>";
+      }
+    })
+    .catch(err => {
+      document.getElementById("leaderboard").innerHTML = "<p>Error loading leaderboard.</p>";
+      console.error(err);
+    });
+</script>
+
 </body>
 </html>
