@@ -271,10 +271,11 @@
 
     function initMap(centerLat, centerLng, useGPS = true) {
       document.getElementById('startup-modal').style.display = 'none';
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      subdomains: 'abcd',
       maxZoom: 19,
-      attribution: '© OpenStreetMap contributors',
-      crossOrigin: true  // ✅ ensures tiles are screenshot-friendly
+      crossOrigin: true
       }).addTo(map);
 
       map.setView([centerLat, centerLng], 14);
