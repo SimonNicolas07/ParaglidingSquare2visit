@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paragliding Mesh Leaderboard</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+    }
+    img.thumb {
+      width: 100px;
+      height: auto;
+      border-radius: 6px;
+    }
+    .grid-group {
+      margin-bottom: 40px;
+    }
+    .grid-title {
+      margin-top: 40px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏆 Paragliding Mesh Leaderboard</h1>
+  <div id="leaderboard"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "paraglidingmeshleaderboard",
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function renderTable(data, gridType) {
+      const container = document.getElementById("leaderboard");
+      const section = document.createElement("div");
+      section.classList.add("grid-group");
+
+      const title = document.createElement("div");
+      title.classList.add("grid-title");
+      title.textContent = `Grid: ${gridType}`;
+      section.appendChild(title);
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      thead.innerHTML = `
+        <tr>
+          <th>Rank</th>
+          <th>Pseudo</th>
+          <th>Score</th>
+          <th>Date</th>
+          <th>Screenshot</th>
+        </tr>
+      `;
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      data.forEach((entry, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${entry.pseudo}</td>
+          <td>${entry.score}</td>
+          <td>${entry.timestamp?.toDate().toLocaleDateString() || ''}</td>
+          <td>
+            <a href="${entry.screenshot}" target="_blank">
+              <img src="${entry.screenshot}" class="thumb" />
+            </a>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+      section.appendChild(table);
+      container.appendChild(section);
+    }
+
+    // Fetch and sort scores by grid type
+    db.collection("scores")
+      .orderBy("score", "desc")
+      .get()
+      .then(snapshot => {
+        const dataByGrid = {};
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const grid = data.gridType || "Unknown";
+
+          if (!dataByGrid[grid]) {
+            dataByGrid[grid] = [];
+          }
+
+          dataByGrid[grid].push(data);
+        });
+
+        Object.entries(dataByGrid).forEach(([gridType, entries]) => {
+          renderTable(entries, gridType);
+        });
+      });
+  </script>
+</body>
+</html>
