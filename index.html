@@ -126,7 +126,7 @@
   background: #0056b3;
 }
 
-</style>
+  </style>
 </head>
 <body>
   <div id="counter">Visited squares: 0 / 0</div>
@@ -139,12 +139,11 @@
       <button onclick="startWithLaMarie()">La Marie</button>
       <button onclick="startWithGPS()">Around Me</button>
     </div>
-
+  </div>
 
   <button id="saveButton" onclick="handleSave()" title="Save score">💾 Save</button>
   <a href="leaderboard.html" id="leaderboardButton" title="View leaderboard">🏆 Ranking</a>
 
-    
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     const map = L.map('map');
@@ -369,10 +368,6 @@ async function saveSession(gridType, visitedCount) {
 
     // Take screenshot
     const canvas = await html2canvas(document.getElementById("map"));
-    //const canvas = await html2canvas(document.getElementById("app"), {
-    //  useCORS: true,
-    //  allowTaint: false
-    //});
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
 
     // Cleanup overlay
