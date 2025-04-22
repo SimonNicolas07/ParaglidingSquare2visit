@@ -366,27 +366,45 @@ async function saveSession(gridType, visitedCount) {
     `;
     document.body.appendChild(badge);
 
+    // pour dire de take a screenshot
+    const tip = document.createElement("div");
+    tip.textContent = "📸 Don't forget to take a screenshot!";
+    tip.style.position = "absolute";
+    tip.style.bottom = "80px";
+    tip.style.left = "50%";
+    tip.style.transform = "translateX(-50%)";
+    tip.style.background = "rgba(0,0,0,0.8)";
+    tip.style.color = "white";
+    tip.style.padding = "10px 20px";
+    tip.style.borderRadius = "8px";
+    tip.style.fontSize = "16px";
+    tip.style.zIndex = "9999";
+    document.body.appendChild(tip);
+
     // Take screenshot
-    const canvas = await html2canvas(document.getElementById("map"));
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    //const canvas = await html2canvas(document.getElementById("map"));
+    //const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
 
     // Cleanup overlay
-    document.body.removeChild(badge);
+    // document.body.removeChild(badge);
 
     // Download image
-    const date = new Date().toISOString().split("T")[0];
-    const filename = `mesh_${gridType}_${pseudo}_${date}.png`;
+    //const date = new Date().toISOString().split("T")[0];
+    //const filename = `mesh_${gridType}_${pseudo}_${date}.png`;
 
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
+    //const link = document.createElement("a");
+    //link.href = URL.createObjectURL(blob);
+    //link.download = filename;
+    //link.click();
 
-    console.log("Screenshot downloaded:", filename);
-  } catch (err) {
-    console.error("Save error:", err);
-    alert("Something went wrong: " + err.message);
-  }
+    //console.log("Screenshot downloaded:", filename);
+    //} catch (err) {
+    //console.error("Save error:", err);
+    //alert("Something went wrong: " + err.message);
+    //}
+
+
+setTimeout(() => document.body.removeChild(tip), 5000);
 }
 
     
