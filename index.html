@@ -299,28 +299,51 @@
       });
     }
 
-    async function saveSession(gridType, visitedCount) {
-      const pseudo = prompt("Enter your pseudo:");
-      if (!pseudo) return;
-
-      const mapElement = document.getElementById("map");
-      const canvas = await html2canvas(mapElement);
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-
-      const fileRef = storage.ref().child(`screenshots/${pseudo}_${Date.now()}.png`);
-      await fileRef.put(blob);
-      const screenshotURL = await fileRef.getDownloadURL();
-
-      await db.collection("scores").add({
-        pseudo: pseudo,
-        score: visitedCount,
-        gridType: gridType,
-        screenshot: screenshotURL,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-
-      alert("Score saved!");
+async function saveSession(gridType, visitedCount) {
+  try {
+    const pseudo = prompt("Enter your pseudo:");
+    if (!pseudo) {
+      console.log("No pseudo entered.");
+      return;
     }
+
+    const mapElement = document.getElementById("map");
+    const canvas = await html2canvas(mapElement);
+    console.log("Canvas captured");
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    if (!blob) {
+      console.error("Failed to create blob from canvas");
+      return;
+    }
+    console.log("Blob created");
+
+    const filename = `screenshots/${pseudo}_${Date.now()}.png`;
+    const fileRef = storage.ref().child(filename);
+    console.log("Uploading to:", filename);
+
+    await fileRef.put(blob);
+    console.log("Upload complete");
+
+    const screenshotURL = await fileRef.getDownloadURL();
+    console.log("Download URL:", screenshotURL);
+
+    const docRef = await db.collection("scores").add({
+      pseudo: pseudo,
+      score: visitedCount,
+      gridType: gridType,
+      screenshot: screenshotURL,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    console.log("Document saved with ID:", docRef.id);
+    alert("Score saved!");
+  } catch (err) {
+    console.error("Save error:", err);
+    alert("Something went wrong: " + err.message);
+  }
+}
+    
     function handleSave() {
       const currentGridType =
     map.getCenter().lat.toFixed(4) === "46.1083" ? "Fayolle" :
