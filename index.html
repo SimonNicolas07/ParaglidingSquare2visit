@@ -378,13 +378,6 @@ async function saveSession(gridType, visitedCount) {
     map.once("idle", () => setTimeout(resolve, 500));
      });
 
-   const canvas = await html2canvas(document.getElementById("app"), {
-     useCORS: true,
-     logging: true,
-     allowTaint: false,
-    });
-
-
     const canvas = await html2canvas(document.getElementById("app"), {
     useCORS: true,
     logging: true,
