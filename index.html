@@ -129,6 +129,7 @@
   </style>
 </head>
 <body>
+  <div id="app">
   <div id="counter">Visited squares: 0 / 0</div>
   <div id="map"></div>
 
@@ -270,10 +271,10 @@
 
     function initMap(centerLat, centerLng, useGPS = true) {
       document.getElementById('startup-modal').style.display = 'none';
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap & CartoDB',
-      subdomains: 'abcd',
-      maxZoom: 19
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors',
+      crossOrigin: true  // ✅ ensures tiles are screenshot-friendly
       }).addTo(map);
 
       map.setView([centerLat, centerLng], 14);
@@ -375,9 +376,21 @@ async function saveSession(gridType, visitedCount) {
     // Capture full app view
     await new Promise(resolve => {
     map.once("idle", () => setTimeout(resolve, 500));
+     });
+
+   const canvas = await html2canvas(document.getElementById("app"), {
+     useCORS: true,
+     logging: true,
+     allowTaint: false,
     });
 
-    const canvas = await html2canvas(document.body);
+
+    const canvas = await html2canvas(document.getElementById("app"), {
+    useCORS: true,
+    logging: true,
+    allowTaint: false,
+    });
+    console.log("Canvas dimensions:", canvas.width, canvas.height);
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
 
     // Clean up badge
@@ -409,5 +422,6 @@ async function saveSession(gridType, visitedCount) {
   saveSession(currentGridType, visitedCells.size);
 }
   </script>
+</div>
 </body>
 </html>
