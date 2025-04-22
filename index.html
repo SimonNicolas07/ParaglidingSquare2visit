@@ -130,21 +130,21 @@
 </head>
 <body>
   <div id="app">
-  <div id="counter">Visited squares: 0 / 0</div>
-  <div id="map"></div>
-
-  <div id="startup-modal">
-    <div class="box">
-      <p>Choose grid center:</p>
-      <button onclick="startWithFayolle()">Fayolle</button>
-      <button onclick="startWithLaMarie()">La Marie</button>
-      <button onclick="startWithGPS()">Around Me</button>
+    <div id="counter">Visited squares: 0 / 0</div>
+    <div id="map"></div>
+    <div id="startup-modal">
+      <div class="box">
+        <p>Choose grid center:</p>
+        <button onclick="startWithFayolle()">Fayolle</button>
+        <button onclick="startWithLaMarie()">La Marie</button>
+        <button onclick="startWithGPS()">Around Me</button>
+      </div>
     </div>
+
+    <button id="saveButton" onclick="handleSave()" title="Save score">💾 Save</button>
+    <a href="leaderboard.html" id="leaderboardButton" title="View leaderboard">🏆 Ranking</a>
   </div>
-
-  <button id="saveButton" onclick="handleSave()" title="Save score">💾 Save</button>
-  <a href="leaderboard.html" id="leaderboardButton" title="View leaderboard">🏆 Ranking</a>
-
+  
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     const map = L.map('map');
@@ -414,7 +414,6 @@ async function saveSession(gridType, visitedCount) {
 
   saveSession(currentGridType, visitedCells.size);
 }
-  </script>
-</div>
+</script>
 </body>
 </html>
