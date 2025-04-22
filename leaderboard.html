@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Paragliding Mesh Leaderboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
     body {
       font-family: sans-serif;
@@ -37,123 +38,150 @@
     th {
       background: #fafafa;
     }
-  #backButton {
-  display: inline-block;
-  background: #28a745;
-  color: white;
-  text-decoration: none;
-  padding: 10px 18px;
-  font-size: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  transition: background 0.3s ease;
-}
-#backButton:hover {
-  background: #218838;
-}
+    #backButton {
+      display: inline-block;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      padding: 10px 18px;
+      font-size: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: background 0.3s ease;
+    }
+    #backButton:hover {
+      background: #218838;
+    }
+    #map {
+      height: 400px;
+      margin-top: 30px;
+    }
   </style>
 </head>
 <body>
   <h1>🏆 Paragliding Mesh Leaderboard</h1>
   <div style="text-align: center; margin-bottom: 20px;">
-  <a href="index.html" id="backButton">← Back to Map</a>
+    <a href="index.html" id="backButton">← Back to Map</a>
   </div>
   <div id="leaderboard">Loading...</div>
+  <div id="map"></div>
 
-  <!-- ✅ Firebase v8 SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCrzvPBLBF4M3J03xa6VJzcsdvk00vQ7RY",
+      authDomain: "paraglidingmeshleaderboard.firebaseapp.com",
+      projectId: "paraglidingmeshleaderboard"
+    };
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCrzvPBLBF4M3J03xa6VJzcsdvk00vQ7RY",
-    authDomain: "paraglidingmeshleaderboard.firebaseapp.com",
-    projectId: "paraglidingmeshleaderboard"
-  };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    const TOTAL_SQUARES = 900;
 
-  const TOTAL_SQUARES = 900; // 6km x 6km at 200m = 30x30 = 900 squares
+    function renderTable(data, gridType) {
+      const container = document.getElementById("leaderboard");
+      const section = document.createElement("div");
+      section.classList.add("grid-group");
 
-  function renderTable(data, gridType) {
-    const container = document.getElementById("leaderboard");
-    const section = document.createElement("div");
-    section.classList.add("grid-group");
+      const title = document.createElement("div");
+      title.classList.add("grid-title");
+      title.textContent = `Grid: ${gridType}`;
+      section.appendChild(title);
 
-    const title = document.createElement("div");
-    title.classList.add("grid-title");
-    title.textContent = `Grid: ${gridType}`;
-    section.appendChild(title);
-
-    const table = document.createElement("table");
-    const thead = document.createElement("thead");
-    thead.innerHTML = `
-      <tr>
-        <th>Rank</th>
-        <th>Pseudo</th>
-        <th>Score</th>
-        <th>% Grid</th>
-        <th>Date</th>
-      </tr>
-    `;
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-
-    data.slice(0, 10).forEach((entry, index) => {
-      const percent = ((entry.score / TOTAL_SQUARES) * 100).toFixed(1);
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>
-        ${index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : index + 1}
-        </td>
-        <td>${entry.pseudo}</td>
-        <td>${entry.score}</td>
-        <td>${percent}%</td>
-        <td>${entry.timestamp?.toDate().toLocaleDateString() || ''}</td>
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      thead.innerHTML = `
+        <tr>
+          <th>Rank</th>
+          <th>Pseudo</th>
+          <th>Score</th>
+          <th>% Grid</th>
+          <th>Date</th>
+        </tr>
       `;
-      tbody.appendChild(row);
-    });
+      table.appendChild(thead);
 
-    table.appendChild(tbody);
-    section.appendChild(table);
-    container.appendChild(section);
-  }
+      const tbody = document.createElement("tbody");
 
-  db.collection("scores")
-    .orderBy("score", "desc")
-    .orderBy("timestamp", "desc")
-    .get()
-    .then(snapshot => {
-      document.getElementById("leaderboard").innerHTML = "";
-
-      const dataByGrid = {};
-
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const grid = data.gridType || "Unknown";
-
-        if (!dataByGrid[grid]) {
-          dataByGrid[grid] = [];
-        }
-
-        dataByGrid[grid].push(data);
+      data.slice(0, 10).forEach((entry, index) => {
+        const percent = ((entry.score / TOTAL_SQUARES) * 100).toFixed(1);
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : index + 1}</td>
+          <td>${entry.pseudo}</td>
+          <td>${entry.score}</td>
+          <td>${percent}%</td>
+          <td>${entry.timestamp?.toDate().toLocaleDateString() || ''}</td>
+        `;
+        row.style.cursor = 'pointer';
+        row.onclick = () => renderScoreOnMap(entry);
+        tbody.appendChild(row);
       });
 
-      Object.entries(dataByGrid).forEach(([gridType, entries]) => {
-        renderTable(entries, gridType);
-      });
+      table.appendChild(tbody);
+      section.appendChild(table);
+      container.appendChild(section);
+    }
 
-      if (Object.keys(dataByGrid).length === 0) {
-        document.getElementById("leaderboard").innerHTML = "<p>No scores yet.</p>";
+    function renderScoreOnMap(score) {
+      document.getElementById("map").innerHTML = "";
+      const map = L.map('map').setView([46.1, 4.6], 13);
+      L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17
+      }).addTo(map);
+
+      if (score.visitedBounds) {
+        score.visitedBounds.forEach(bounds => {
+          L.rectangle(bounds, {
+            color: "green",
+            weight: 1,
+            fillOpacity: 0.5
+          }).addTo(map);
+        });
       }
-    })
-    .catch(err => {
-      document.getElementById("leaderboard").innerHTML = "<p>Error loading leaderboard.</p>";
-      console.error(err);
-    });
-</script>
 
+      if (score.pathCoords) {
+        L.polyline(score.pathCoords, {
+          color: "yellow",
+          weight: 3
+        }).addTo(map);
+        map.fitBounds(score.pathCoords);
+      }
+    }
+
+    db.collection("scores")
+      .orderBy("score", "desc")
+      .orderBy("timestamp", "desc")
+      .get()
+      .then(snapshot => {
+        document.getElementById("leaderboard").innerHTML = "";
+
+        const dataByGrid = {};
+
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const grid = data.gridType || "Unknown";
+
+          if (!dataByGrid[grid]) dataByGrid[grid] = [];
+
+          dataByGrid[grid].push(data);
+        });
+
+        Object.entries(dataByGrid).forEach(([gridType, entries]) => {
+          renderTable(entries, gridType);
+        });
+
+        if (Object.keys(dataByGrid).length === 0) {
+          document.getElementById("leaderboard").innerHTML = "<p>No scores yet.</p>";
+        }
+      })
+      .catch(err => {
+        document.getElementById("leaderboard").innerHTML = "<p>Error loading leaderboard.</p>";
+        console.error(err);
+      });
+  </script>
 </body>
 </html>
