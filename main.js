@@ -15,6 +15,7 @@ const storage = firebase.storage();
 const map = L.map('map');
 let grid = [];
 const visitedCells = new Set();
+const visitedBounds = []; // ✅ store bounds
 const pathCoords = [];
 let pathLine = null;
 let arrowMarker = null;
@@ -83,6 +84,7 @@ function highlightCurrentSquare(lat, lng) {
     ) {
       cell.rect.setStyle({ color: "green", fillOpacity: 0.5 });
       visitedCells.add(key);
+      visitedBounds.push(cell.bounds); // ✅ save bounds
       cell.visited = true;
       updateCounter();
     }
@@ -173,12 +175,12 @@ function saveSession(gridType, visitedCount) {
     if (!pseudo) return;
 
     db.collection("scores").add({
-     pseudo,
-     score: visitedCount,
-     gridType,
-     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-     visitedCells: Array.from(visitedCells),
-     pathCoords: pathCoords,
+      pseudo,
+      score: visitedCount,
+      gridType,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      visitedBounds,
+      pathCoords,
     }).then(docRef => {
       console.log("Score saved with ID:", docRef.id);
 
