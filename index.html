@@ -270,9 +270,9 @@
 
     function initMap(centerLat, centerLng, useGPS = true) {
       document.getElementById('startup-modal').style.display = 'none';
-      L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 17,
-        attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
       map.setView([centerLat, centerLng], 14);
@@ -335,7 +335,7 @@ async function saveSession(gridType, visitedCount) {
     console.log("Score saved with ID:", docRef.id);
     alert("Score saved!");
 
-    // Zoom to show entire grid
+    // Zoom to show the full grid
     const bounds = L.latLngBounds([]);
     grid.forEach(cell => {
       bounds.extend(cell.bounds[0]);
@@ -343,10 +343,15 @@ async function saveSession(gridType, visitedCount) {
     });
     map.fitBounds(bounds, { padding: [20, 20] });
 
-    // Wait for map to update
+    // Remove arrow to avoid visual glitch
+    if (arrowMarker) {
+      map.removeLayer(arrowMarker);
+    }
+
+    // Wait for map to render
     await new Promise(res => setTimeout(res, 1000));
 
-    // Add an overlay badge
+    // Add badge overlay
     const badge = document.createElement("div");
     badge.style.position = "absolute";
     badge.style.top = "10px";
@@ -366,18 +371,14 @@ async function saveSession(gridType, visitedCount) {
     `;
     document.body.appendChild(badge);
 
-    // Take screenshot
-    document.getElementById("saveButton").style.display = "none";
-    document.getElementById("leaderboardButton").style.display = "none";
+    // Capture full app view
     const canvas = await html2canvas(document.body);
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-    document.getElementById("saveButton").style.display = "block";
-    document.getElementById("leaderboardButton").style.display = "block";
 
-    // Cleanup overlay
+    // Clean up badge
     document.body.removeChild(badge);
 
-    // Download image
+    // Create and trigger download
     const date = new Date().toISOString().split("T")[0];
     const filename = `mesh_${gridType}_${pseudo}_${date}.png`;
 
