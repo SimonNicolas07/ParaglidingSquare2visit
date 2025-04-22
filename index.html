@@ -1,18 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>GPS Grid Tracker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- PWA support -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#ffffff">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <!-- PWA Support -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
 
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
+
+  <!-- html2canvas for screenshots -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
     html, body {
       height: 100%;
@@ -31,7 +41,7 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255, 255, 255, 0.9);
       border: 1px solid #ccc;
       padding: 8px 12px;
       font-family: sans-serif;
@@ -45,7 +55,7 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0, 0, 0, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -66,241 +76,229 @@
       transform-origin: center;
     }
   </style>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCrzvPBLBF4M3J03xa6VJzcsdvk00vQ7RY",
+      authDomain: "paraglidingmeshleaderboard.firebaseapp.com",
+      projectId: "paraglidingmeshleaderboard",
+      storageBucket: "paraglidingmeshleaderboard.appspot.com",
+      messagingSenderId: "13268331240",
+      appId: "1:13268331240:web:b8e9a9b4834727d610b75d"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+  </script>
 </head>
 <body>
-<div id="counter">Visited squares: 0 / 0</div>
-<div id="map"></div>
+  <div id="counter">Visited squares: 0 / 0</div>
+  <div id="map"></div>
 
-<div id="startup-modal">
-  <div class="box">
-    <p>Choose grid center:</p>
-    <button onclick="startWithFayolle()">Fayolle</button>
-    <button onclick="startWithLaMarie()">La Marie</button>
-    <button onclick="startWithGPS()">Around Me</button>
+  <div id="startup-modal">
+    <div class="box">
+      <p>Choose grid center:</p>
+      <button onclick="startWithFayolle()">Fayolle</button>
+      <button onclick="startWithLaMarie()">La Marie</button>
+      <button onclick="startWithGPS()">Around Me</button>
+    </div>
   </div>
-</div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script>
-  const map = L.map('map');
-  let grid = [];
-  const visitedCells = new Set();
-  const pathCoords = [];
-  let pathLine = null;
-  let arrowMarker = null;
-  const gridSizeMeters = 200;  // CHANGED to 200m
-  const areaSizeMeters = 6000;
-  let totalSquares = 0;
-  let lastLat = null;
-  let lastLng = null;
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map');
+    let grid = [];
+    const visitedCells = new Set();
+    const pathCoords = [];
+    let pathLine = null;
+    let arrowMarker = null;
+    const gridSizeMeters = 200;
+    const areaSizeMeters = 6000;
+    let totalSquares = 0;
+    let lastLat = null;
+    let lastLng = null;
 
-   // Wake lock to keep screen on
-  let wakeLock = null;
-  async function requestWakeLock() {
-    try {
-      wakeLock = await navigator.wakeLock.request('screen');
-      wakeLock.addEventListener('release', () => {
-        console.log('Wake lock released');
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => {
+          console.log('Wake lock released');
+        });
+      } catch (err) {
+        console.error('Wake Lock Error:', err.name, err.message);
+      }
+    }
+    if ('wakeLock' in navigator) {
+      document.addEventListener('DOMContentLoaded', requestWakeLock);
+    }
+
+    function metersToDegreesLat(meters) {
+      return meters / 111320;
+    }
+
+    function metersToDegreesLng(meters, latitude) {
+      return meters / (40075000 * Math.cos(latitude * Math.PI / 180) / 360);
+    }
+
+    function snapToGrid(value, step) {
+      return Math.floor(value / step) * step;
+    }
+
+    function updateCounter() {
+      document.getElementById('counter').textContent =
+        `Visited squares: ${visitedCells.size} / ${totalSquares}`;
+    }
+
+    function createGrid(centerLat, centerLng) {
+      const rows = Math.floor(areaSizeMeters / gridSizeMeters);
+      const cols = rows;
+      totalSquares = rows * cols;
+      updateCounter();
+
+      const deltaLat = metersToDegreesLat(gridSizeMeters);
+      const deltaLng = metersToDegreesLng(gridSizeMeters, centerLat);
+
+      const startLat = snapToGrid(centerLat, deltaLat) - (rows / 2) * deltaLat;
+      const startLng = snapToGrid(centerLng, deltaLng) - (cols / 2) * deltaLng;
+
+      for (let i = 0; i < rows; i++) {
+        for (let j = 0; j < cols; j++) {
+          const south = startLat + i * deltaLat;
+          const west = startLng + j * deltaLng;
+          const north = south + deltaLat;
+          const east = west + deltaLng;
+
+          const bounds = [[south, west], [north, east]];
+          const rect = L.rectangle(bounds, {
+            color: "#000",
+            weight: 1,
+            fillOpacity: 0.1
+          }).addTo(map);
+          grid.push({ bounds, rect, visited: false });
+        }
+      }
+    }
+
+    function highlightCurrentSquare(lat, lng) {
+      grid.forEach(cell => {
+        const [[south, west], [north, east]] = cell.bounds;
+        const key = `${south.toFixed(5)}_${west.toFixed(5)}`;
+
+        if (
+          lat >= south && lat <= north &&
+          lng >= west && lng <= east &&
+          !visitedCells.has(key)
+        ) {
+          cell.rect.setStyle({ color: "green", fillOpacity: 0.5 });
+          visitedCells.add(key);
+          cell.visited = true;
+          updateCounter();
+        }
       });
-    } catch (err) {
-      console.error('Wake Lock Error:', err.name, err.message);
     }
-  }
-  if ('wakeLock' in navigator) {
-    document.addEventListener('DOMContentLoaded', requestWakeLock);
-  }
 
-  function metersToDegreesLat(meters) {
-    return meters / 111320;
-  }
+    function updatePath(lat, lng) {
+      pathCoords.push([lat, lng]);
+      if (pathLine) map.removeLayer(pathLine);
+      pathLine = L.polyline(pathCoords, {
+        color: "yellow",
+        weight: 3
+      }).addTo(map);
+    }
 
-  function metersToDegreesLng(meters, latitude) {
-    return meters / (40075000 * Math.cos(latitude * Math.PI / 180) / 360);
-  }
+    function updateArrow(lat, lng) {
+      if (arrowMarker) map.removeLayer(arrowMarker);
+      let angle = 0;
+      if (lastLat !== null && lastLng !== null) {
+        const dx = lng - lastLng;
+        const dy = lat - lastLat;
+        angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      }
 
-  function snapToGrid(value, step) {
-    return Math.floor(value / step) * step;
-  }
+      const divIcon = L.divIcon({
+        className: '',
+        html: `<div class="arrow-marker" style="transform: rotate(${angle}deg);"></div>`,
+        iconSize: [10, 10],
+        iconAnchor: [5, 5]
+      });
 
-  function updateCounter() {
-    document.getElementById('counter').textContent =
-      `Visited squares: ${visitedCells.size} / ${totalSquares}`;
-  }
+      arrowMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
+      lastLat = lat;
+      lastLng = lng;
+    }
 
-  function createGrid(centerLat, centerLng) {
-    const rows = Math.floor(areaSizeMeters / gridSizeMeters);
-    const cols = rows;
-    totalSquares = rows * cols;
-    updateCounter();
+    function initMap(centerLat, centerLng, useGPS = true) {
+      document.getElementById('startup-modal').style.display = 'none';
+      L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        maxZoom: 17,
+        attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
+      }).addTo(map);
 
-    const deltaLat = metersToDegreesLat(gridSizeMeters);
-    const deltaLng = metersToDegreesLng(gridSizeMeters, centerLat);
+      map.setView([centerLat, centerLng], 14);
+      createGrid(centerLat, centerLng);
 
-    const startLat = snapToGrid(centerLat, deltaLat) - (rows/2) * deltaLat;
-    const startLng = snapToGrid(centerLng, deltaLng) - (cols/2) * deltaLng;
-
-    for (let i = 0; i < rows; i++) {
-      for (let j = 0; j < cols; j++) {
-        const south = startLat + i * deltaLat;
-        const west = startLng + j * deltaLng;
-        const north = south + deltaLat;
-        const east = west + deltaLng;
-
-        const bounds = [[south, west], [north, east]];
-        const rect = L.rectangle(bounds, {
-          color: "#000",
-          weight: 1,
-          fillOpacity: 0.1
-        }).addTo(map);
-        grid.push({ bounds, rect, visited: false });
+      if (useGPS) {
+        navigator.geolocation.watchPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          highlightCurrentSquare(lat, lng);
+          updatePath(lat, lng);
+          updateArrow(lat, lng);
+        }, err => {
+          alert("GPS error: " + err.message);
+        }, {
+          enableHighAccuracy: true,
+          maximumAge: 0
+        });
+      } else {
+        highlightCurrentSquare(centerLat, centerLng);
+        updatePath(centerLat, centerLng);
+        updateArrow(centerLat, centerLng);
       }
     }
-  }
 
-  function highlightCurrentSquare(lat, lng) {
-    grid.forEach(cell => {
-      const [[south, west], [north, east]] = cell.bounds;
-      const key = `${south.toFixed(5)}_${west.toFixed(5)}`;
-
-      if (
-        lat >= south && lat <= north &&
-        lng >= west && lng <= east &&
-        !visitedCells.has(key)
-      ) {
-        cell.rect.setStyle({ color: "green", fillOpacity: 0.5 });
-        visitedCells.add(key);
-        cell.visited = true;
-        updateCounter();
-      }
-    });
-  }
-
-  function updatePath(lat, lng) {
-    pathCoords.push([lat, lng]);
-    if (pathLine) map.removeLayer(pathLine);
-    pathLine = L.polyline(pathCoords, {
-      color: "yellow",
-      weight: 3
-    }).addTo(map);
-  }
-
-  function updateArrow(lat, lng) {
-    if (arrowMarker) map.removeLayer(arrowMarker);
-    let angle = 0;
-    if (lastLat !== null && lastLng !== null) {
-      const dx = lng - lastLng;
-      const dy = lat - lastLat;
-      angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    function startWithFayolle() {
+      initMap(46.1083495, 4.6189530, true);
     }
 
-    const divIcon = L.divIcon({
-      className: '',
-      html: `<div class="arrow-marker" style="transform: rotate(${angle}deg);"></div>`,
-      iconSize: [10, 10],
-      iconAnchor: [5, 5]
-    });
+    function startWithLaMarie() {
+      initMap(46.084143, 4.608334, true);
+    }
 
-    arrowMarker = L.marker([lat, lng], { icon: divIcon }).addTo(map);
-    lastLat = lat;
-    lastLng = lng;
-  }
-
-  function initMap(centerLat, centerLng, useGPS = true) {
-    document.getElementById('startup-modal').style.display = 'none';
-    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      maxZoom: 17,
-      attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
-    }).addTo(map);
-
-    map.setView([centerLat, centerLng], 14);
-    createGrid(centerLat, centerLng);
-
-    if (useGPS) {
-      navigator.geolocation.watchPosition(pos => {
+    function startWithGPS() {
+      navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
-        highlightCurrentSquare(lat, lng);
-        updatePath(lat, lng);
-        updateArrow(lat, lng);
+        initMap(lat, lng, true);
       }, err => {
         alert("GPS error: " + err.message);
-      }, {
-        enableHighAccuracy: true,
-        maximumAge: 0
       });
-    } else {
-      // Just center map without GPS follow
-      highlightCurrentSquare(centerLat, centerLng);
-      updatePath(centerLat, centerLng);
-      updateArrow(centerLat, centerLng);
     }
-  }
 
-  function startWithFayolle() {
-    initMap(46.1083495, 4.6189530, true);
-  }
+    async function saveSession(gridType, visitedCount) {
+      const pseudo = prompt("Enter your pseudo:");
+      if (!pseudo) return;
 
-  function startWithLaMarie() {
-    initMap(46.084143, 4.608334, true);
-  } 
+      const mapElement = document.getElementById("map");
+      const canvas = await html2canvas(mapElement);
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
 
-  function startWithGPS() {
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      initMap(lat, lng, true);
-    }, err => {
-      alert("GPS error: " + err.message);
-    });
-  }
+      const fileRef = storage.ref().child(`screenshots/${pseudo}_${Date.now()}.png`);
+      await fileRef.put(blob);
+      const screenshotURL = await fileRef.getDownloadURL();
 
-  async function saveSession(gridType, visitedCount) {
-  const pseudo = prompt("Enter your pseudo:");
-  if (!pseudo) return;
+      await db.collection("scores").add({
+        pseudo: pseudo,
+        score: visitedCount,
+        gridType: gridType,
+        screenshot: screenshotURL,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
 
-  // Take screenshot of the map
-  const mapElement = document.getElementById("map");
-  const canvas = await html2canvas(mapElement);
-  const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-
-  // Upload screenshot
-  const fileRef = storage.ref().child(`screenshots/${pseudo}_${Date.now()}.png`);
-  await fileRef.put(blob);
-  const screenshotURL = await fileRef.getDownloadURL();
-
-  // Save entry to Firestore
-  await db.collection("scores").add({
-    pseudo: pseudo,
-    score: visitedCount,
-    gridType: gridType,
-    screenshot: screenshotURL,
-    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  alert("Score saved!");
-}
-
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCrzvPBLBF4M3J03xa6VJzcsdvk00vQ7RY",
-    authDomain: "paraglidingmeshleaderboard.firebaseapp.com",
-    projectId: "paraglidingmeshleaderboard",
-    storageBucket: "paraglidingmeshleaderboard.appspot.com",
-    messagingSenderId: "13268331240",
-    appId: "1:13268331240:web:b8e9a9b4834727d610b75d"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const storage = firebase.storage();
-</script>
-
+      alert("Score saved!");
+    }
+  </script>
 </body>
 </html>
