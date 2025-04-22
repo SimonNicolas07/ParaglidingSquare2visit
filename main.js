@@ -173,10 +173,12 @@ function saveSession(gridType, visitedCount) {
     if (!pseudo) return;
 
     db.collection("scores").add({
-      pseudo,
-      score: visitedCount,
-      gridType,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+     pseudo,
+     score: visitedCount,
+     gridType,
+     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+     visitedCells: Array.from(visitedCells),
+     pathCoords: pathCoords,
     }).then(docRef => {
       console.log("Score saved with ID:", docRef.id);
 
