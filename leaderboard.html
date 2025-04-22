@@ -7,39 +7,68 @@
   <style>
     body {
       font-family: sans-serif;
-      margin: 20px;
+      margin: 0;
+      padding: 20px;
       background: #f4f4f4;
     }
     h1 {
       text-align: center;
+      margin-bottom: 20px;
+    }
+    #loading {
+      text-align: center;
+      font-size: 18px;
+      padding: 40px;
+      color: #555;
+    }
+    .grid-group {
+      margin-bottom: 60px;
+    }
+    .grid-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     th, td {
-      padding: 10px;
+      padding: 12px;
       text-align: left;
-      border-bottom: 1px solid #ccc;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background-color: #f9f9f9;
+      font-weight: bold;
     }
     img.thumb {
       width: 100px;
       height: auto;
       border-radius: 6px;
+      transition: transform 0.2s ease;
     }
-    .grid-group {
-      margin-bottom: 40px;
+    img.thumb:hover {
+      transform: scale(1.05);
     }
-    .grid-title {
-      margin-top: 40px;
-      font-size: 20px;
-      font-weight: bold;
+    @media (max-width: 600px) {
+      td, th {
+        font-size: 14px;
+      }
+      img.thumb {
+        width: 80px;
+      }
     }
   </style>
 </head>
 <body>
   <h1>🏆 Paragliding Mesh Leaderboard</h1>
+  <div id="loading">Loading leaderboard...</div>
   <div id="leaderboard"></div>
 
   <!-- Firebase SDKs -->
@@ -50,8 +79,9 @@
     const firebaseConfig = {
       apiKey: "AIzaSyCrzvPBLBF4M3J03xa6VJzcsdvk00vQ7RY",
       authDomain: "paraglidingmeshleaderboard.firebaseapp.com",
-      projectId: "paraglidingmeshleaderboard",
+      projectId: "paraglidingmeshleaderboard"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
@@ -82,14 +112,15 @@
 
       data.forEach((entry, index) => {
         const row = document.createElement("tr");
+        const dateStr = entry.timestamp?.toDate().toLocaleDateString() || '';
         row.innerHTML = `
           <td>${index + 1}</td>
           <td>${entry.pseudo}</td>
           <td>${entry.score}</td>
-          <td>${entry.timestamp?.toDate().toLocaleDateString() || ''}</td>
+          <td>${dateStr}</td>
           <td>
             <a href="${entry.screenshot}" target="_blank">
-              <img src="${entry.screenshot}" class="thumb" />
+              <img src="${entry.screenshot}" class="thumb" alt="Screenshot" />
             </a>
           </td>
         `;
@@ -101,28 +132,42 @@
       container.appendChild(section);
     }
 
-    // Fetch and sort scores by grid type
+    // Fetch and group scores by grid type
     db.collection("scores")
       .orderBy("score", "desc")
+      .orderBy("timestamp", "desc")
       .get()
       .then(snapshot => {
-        const dataByGrid = {};
+        document.getElementById("loading").remove();
 
+        if (snapshot.empty) {
+          document.getElementById("leaderboard").innerHTML =
+            "<p style='text-align:center;'>No scores submitted yet.</p>";
+          return;
+        }
+
+        const dataByGrid = {};
         snapshot.forEach(doc => {
           const data = doc.data();
           const grid = data.gridType || "Unknown";
-
           if (!dataByGrid[grid]) {
             dataByGrid[grid] = [];
           }
-
           dataByGrid[grid].push(data);
         });
 
         Object.entries(dataByGrid).forEach(([gridType, entries]) => {
           renderTable(entries, gridType);
         });
+      })
+      .catch(err => {
+        document.getElementById("loading").innerText =
+          "Error loading leaderboard.";
+        console.error(err);
       });
+
+    // Optional: Auto-refresh every 60 seconds
+    setInterval(() => location.reload(), 60000);
   </script>
 </body>
 </html>
