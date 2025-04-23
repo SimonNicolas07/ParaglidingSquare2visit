@@ -235,7 +235,7 @@ function promptIGCUpload() {
   console.log("In prompt");
   const fileInput = document.getElementById("igcInput");
   fileInput.value = ''; // reset any existing file
-  fileInput.click();
+  fileInput.click(); // This opens the file picker dialog
   fileInput.onchange = (e) => {
     const file = e.target.files[0];
     if (file) {      
