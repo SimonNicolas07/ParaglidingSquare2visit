@@ -235,8 +235,9 @@ document.addEventListener("DOMContentLoaded", () => {
       clearAppStateAndReload();
     };
   };
-  })
   document.body.appendChild(resetBtn);
+  })
+  
 
 
   document.getElementById("gridChoiceButton").onclick = () => {
