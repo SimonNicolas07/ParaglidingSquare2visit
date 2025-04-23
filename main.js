@@ -329,9 +329,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
     console.log("Begin of LoadIGCbutton")
-    showGridModal((lat, lng, name) => {
-    currentGridType = name;
-    //initMap(lat, lng, false); // Don't use live GPS
     console.log("Before suppression boutton");
     document.getElementById("gridChoiceButton").style.display = "none";
     document.getElementById("leaderboardButton").style.display = "none";
@@ -340,7 +337,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Before loading");
     promptIGCUpload();
     console.log("After loading");
-  });
   };
 
   // grid choice button
