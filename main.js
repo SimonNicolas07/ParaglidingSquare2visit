@@ -325,9 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // loadIGC
-  document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("loadIGCButton").onclick = promptIGCUploadThenGridChoice;
-  });
 
   // grid choice button
   document.getElementById("gridChoiceButton").onclick = () => {
