@@ -235,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearAppStateAndReload();
     };
   };
-  }
+  })
   document.body.appendChild(resetBtn);
 
 
