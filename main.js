@@ -297,34 +297,32 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 });
-
-
 const saved = localStorage.getItem("mesh_center");
+let usedSaved = false;
+
 if (saved) {
   try {
     const { lat, lng } = JSON.parse(saved);
     if (typeof lat === "number" && typeof lng === "number") {
       map.setView([lat, lng], 14);
-      return;
+      usedSaved = true;
     }
   } catch (e) {
-    console.warn("Invalid saved state:", e);
+    console.warn("Invalid saved center:", e);
   }
 }
 
-// fallback: try GPS or default center
-navigator.geolocation.getCurrentPosition(
-  pos => {
-    map.setView([pos.coords.latitude, pos.coords.longitude], 14);
-  },
-  err => {
-    map.setView([46.1083495, 4.6189530], 14); // Fayolle
-  },
-  {
-    enableHighAccuracy: true,
-    timeout: 2000
-  }
-);
+if (!usedSaved) {
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+    },
+    err => {
+      map.setView([46.1083495, 4.6189530], 14); // fallback: Fayolle
+    },
+    { enableHighAccuracy: true, timeout: 2000 }
+  );
+}
 
 
 async function saveSession(gridType, visitedCount) {
