@@ -199,13 +199,6 @@ function saveAppState() {
 window.addEventListener("beforeunload", saveAppState);
 
 document.addEventListener("DOMContentLoaded", () => {
-  function clearAppStateAndReload() {
-  localStorage.removeItem("mesh_center");
-  localStorage.removeItem("mesh_visited");
-  localStorage.removeItem("mesh_path");
-  location.reload();
-  }
-  
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "🗑 Reset";
   resetBtn.style.position = "absolute";
@@ -219,70 +212,119 @@ document.addEventListener("DOMContentLoaded", () => {
   resetBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)";
   resetBtn.style.zIndex = 1100;
 
-resetBtn.onclick = () => {
   const confirmBox = document.getElementById("reset-confirm");
-  confirmBox.style.display = "flex";
+  resetBtn.onclick = () => {
+    confirmBox.style.display = "flex";
+    const yesBtn = document.getElementById("confirm-yes");
+    const noBtn = document.getElementById("confirm-no");
 
-  // Use once listeners to avoid stacking multiple clicks
-  const yesBtn = document.getElementById("confirm-yes");
-  const noBtn = document.getElementById("confirm-no");
+    const cleanup = () => {
+      confirmBox.style.display = "none";
+      yesBtn.onclick = null;
+      noBtn.onclick = null;
+    };
 
-  const cleanup = () => {
-    confirmBox.style.display = "none";
-    yesBtn.onclick = null;
-    noBtn.onclick = null;
+    yesBtn.onclick = () => {
+      saveSession(currentGridType, visitedCells.size);
+      cleanup();
+      clearAppStateAndReload();
+    };
+
+    noBtn.onclick = () => {
+      cleanup();
+      clearAppStateAndReload();
+    };
   };
+  document.body.appendChild(resetBtn);
 
-  yesBtn.onclick = () => {
-    saveSession(currentGridType, visitedCells.size);
-    cleanup();
-    clearAppStateAndReload();
+  const chooseBtn = document.createElement("button");
+  chooseBtn.textContent = "📍 Grid choice";
+  chooseBtn.style.position = "absolute";
+  chooseBtn.style.bottom = "130px";
+  chooseBtn.style.right = "20px";
+  chooseBtn.style.padding = "12px 16px";
+  chooseBtn.style.background = "#007bff";
+  chooseBtn.style.color = "white";
+  chooseBtn.style.border = "none";
+  chooseBtn.style.borderRadius = "8px";
+  chooseBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)";
+  chooseBtn.style.zIndex = 1100;
+  chooseBtn.onclick = () => {
+    document.getElementById("startup-modal").style.display = "flex";
   };
+  document.body.appendChild(chooseBtn);
 
-  noBtn.onclick = () => {
-    cleanup();
-    clearAppStateAndReload();
-  };
-};
-document.body.appendChild(resetBtn);
+  // Try to get position on startup (without grid)
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+    },
+    err => {
+      map.setView([46.1083495, 4.6189530], 14); // Fayolle default
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 2000
+    }
+  );
 
-  
-  // Delay modal display until buttons have been loaded
+  // Load mesh buttons
   fetch('startPoints.json')
     .then(res => res.json())
     .then(points => {
       const container = document.getElementById('start-buttons');
-      container.innerHTML = ''; // Clear in case of reload
+      container.innerHTML = '';
       points.forEach(point => {
         const btn = document.createElement("button");
         btn.textContent = point.name;
         btn.onclick = () => {
           if (point.gps) {
-            startWithGPS();
+            navigator.geolocation.getCurrentPosition(
+              pos => {
+                startWith(pos.coords.latitude, pos.coords.longitude, "Around me");
+              },
+              err => {
+                alert("GPS error. Using default.");
+                startWith(46.1083495, 4.6189530, "Fayolle");
+              }
+            );
           } else {
             startWith(point.lat, point.lng, point.name);
           }
+          document.getElementById("startup-modal").style.display = "none";
         };
         container.appendChild(btn);
       });
-
-// Only show the modal after buttons are there
-const saved = localStorage.getItem("mesh_center");
-      if (saved) {
-        try {
-          const { lat, lng } = JSON.parse(saved);
-          if (typeof lat === "number" && typeof lng === "number") {
-            initMap(lat, lng, true);
-            return;
-          }
-        } catch (e) {
-          console.warn("Invalid saved state:", e);
-        }
-      }
-      // ❗ Show modal only if no valid saved state
-      document.getElementById("startup-modal").style.display = "flex";
     });
 });
+
+
+const saved = localStorage.getItem("mesh_center");
+if (saved) {
+  try {
+    const { lat, lng } = JSON.parse(saved);
+    if (typeof lat === "number" && typeof lng === "number") {
+      map.setView([lat, lng], 14);
+      return;
+    }
+  } catch (e) {
+    console.warn("Invalid saved state:", e);
+  }
+}
+
+// fallback: try GPS or default center
+navigator.geolocation.getCurrentPosition(
+  pos => {
+    map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+  },
+  err => {
+    map.setView([46.1083495, 4.6189530], 14); // Fayolle
+  },
+  {
+    enableHighAccuracy: true,
+    timeout: 2000
+  }
+);
 
 
 async function saveSession(gridType, visitedCount) {
