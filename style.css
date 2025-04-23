@@ -42,7 +42,7 @@ html, body {
   z-index: 1100;
   padding: 12px 16px;
   font-size: 16px;
-  background: #28a745;
+  background: #007bff;
   color: white;
   border: none;
   border-radius: 8px;
@@ -50,9 +50,8 @@ html, body {
   cursor: pointer;
   transition: background 0.3s ease;
 }
-
 #saveButton:hover {
-  background: #218838;
+  background: #0056b3;
 }
 
 #resetButton {
@@ -69,13 +68,17 @@ html, body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
   cursor: pointer;
 }
+#resetButton:hover {
+  background: #0056b3;
+}
 
-#gridChoiceButton {
+
+#loadIGCButton {
   position: absolute;
-  bottom: 80px;
+  bottom: 140px;
   left: 20px;
   z-index: 1100;
-  background: #17a2b8;
+  background: #007bff;
   color: white;
   text-decoration: none;
   padding: 12px 16px;
@@ -85,9 +88,27 @@ html, body {
   border: none;
   cursor: pointer;
 }
+#loadIGCButton:hover {
+  background: #0056b3;
+}
 
+#gridChoiceButton {
+  position: absolute;
+  bottom: 80px;
+  left: 20px;
+  z-index: 1100;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  padding: 12px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  border: none;
+  cursor: pointer;
+}
 #gridChoiceButton:hover {
-  background: #138496;
+  background: #0056b3;
 }
 
 #leaderboardButton {
@@ -102,6 +123,9 @@ html, body {
   font-size: 16px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+#leaderboardButton:hover {
+  background: #0056b3;
 }
 
 #startup-modal {
@@ -137,11 +161,8 @@ html, body {
   border-radius: 6px;
   cursor: pointer;
 }
-
 .modal-box button:hover {
   background: #0056b3;
 }
 
-#leaderboardButton:hover {
-  background: #0056b3;
-}
+
