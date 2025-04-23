@@ -186,7 +186,7 @@ function startWith(lat, lng, name) {
   initMap(lat, lng, true);
   document.getElementById("gridChoiceButton").style.display = "none";
   document.getElementById("leaderboardButton").style.display = "none";
-  //document.getElementById("loadIGCButton").style.display = "none";
+  document.getElementById("loadIGCButton").style.display = "none";
   document.getElementById("resetButton").style.display = "block";
 }
 
@@ -237,10 +237,11 @@ function promptIGCUploadThenGridChoice() {
   const fileInput = document.getElementById("igcInput");
   fileInput.value = '';
   fileInput.click();
-
+  console.log("Here debut igc upload");
   fileInput.onchange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      console.log("file ok");
       const reader = new FileReader();
       reader.onload = (e) => {
         const lines = e.target.result.split("\n").filter(l => l.startsWith("B"));
@@ -258,7 +259,8 @@ function promptIGCUploadThenGridChoice() {
 
           points.push([lat, lng]);
         }
-
+        console.log("I haves points :");
+        console.log(points)
         pendingIGCPoints = points;
         showGridModal((lat, lng, name) => {
           currentGridType = name;
@@ -278,6 +280,7 @@ function promptIGCUploadThenGridChoice() {
 
           document.getElementById("gridChoiceButton").style.display = "none";
           document.getElementById("leaderboardButton").style.display = "none";
+          document.getElementById("loadIGCButton").style.display = "none";
           document.getElementById("resetButton").style.display = "block";
         });
       };
