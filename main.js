@@ -237,8 +237,9 @@ function promptIGCUpload() {
   fileInput.click();
   fileInput.onchange = (e) => {
     const file = e.target.files[0];
-    if (file) return{
+    if (file) {
       parseIGCFile(file);
+    }
   }
 }
 
