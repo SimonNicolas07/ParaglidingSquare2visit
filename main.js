@@ -225,6 +225,31 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+ const resetBtn = document.createElement("button");
+  resetBtn.textContent = "🗑 Reset";
+  resetBtn.style.position = "absolute";
+  resetBtn.style.bottom = "80px";
+  resetBtn.style.right = "20px";
+  resetBtn.style.padding = "12px 16px";
+  resetBtn.style.background = "#dc3545";
+  resetBtn.style.color = "white";
+  resetBtn.style.border = "none";
+  resetBtn.style.borderRadius = "8px";
+  resetBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)";
+  resetBtn.style.zIndex = 1100;
+  resetBtn.onclick = () => {
+    const wantsSave = confirm("Do you want to save before resetting?");
+    if (wantsSave) {
+      saveSession(currentGridType, visitedCells.size);
+    }
+    localStorage.removeItem("mesh_center");
+    localStorage.removeItem("mesh_visited");
+    localStorage.removeItem("mesh_path");
+    location.reload();
+  };
+  document.body.appendChild(resetBtn);
+});
+
 async function saveSession(gridType, visitedCount) {
   try {
     const pseudo = prompt("Enter your pseudo:");
