@@ -199,6 +199,13 @@ function saveAppState() {
 window.addEventListener("beforeunload", saveAppState);
 
 document.addEventListener("DOMContentLoaded", () => {
+  function clearAppStateAndReload() {
+  localStorage.removeItem("mesh_center");
+  localStorage.removeItem("mesh_visited");
+  localStorage.removeItem("mesh_path");
+  location.reload();
+  }
+  
   const resetBtn = document.createElement("button");
   resetBtn.textContent = "🗑 Reset";
   resetBtn.style.position = "absolute";
@@ -239,12 +246,6 @@ resetBtn.onclick = () => {
 };
 document.body.appendChild(resetBtn);
 
-function clearAppStateAndReload() {
-  localStorage.removeItem("mesh_center");
-  localStorage.removeItem("mesh_visited");
-  localStorage.removeItem("mesh_path");
-  location.reload();
-}
   
   // Delay modal display until buttons have been loaded
   fetch('startPoints.json')
