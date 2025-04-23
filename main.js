@@ -168,6 +168,7 @@ function initMap(centerLat, centerLng, useGPS = true) {
     }).addTo(map);
   }
 console.log("Before leaving InitMap")  
+
 if (useGPS && "geolocation" in navigator) {
 console.log("After if (!useGPS ...")   
 
@@ -184,6 +185,7 @@ console.log("After if (!useGPS ...")
     maximumAge: 0
   });
 }
+ console.log("Before leaving InitMap really") 
 } // fin initmap
 
 function startWith(lat, lng, name) {
@@ -191,7 +193,7 @@ function startWith(lat, lng, name) {
   initMap(lat, lng, true);
   document.getElementById("gridChoiceButton").style.display = "none";
   document.getElementById("leaderboardButton").style.display = "none";
-  document.getElementById("loadIGCButton").style.display = "none";
+  //document.getElementById("loadIGCButton").style.display = "none";
   document.getElementById("resetButton").style.display = "block";
 }
 
