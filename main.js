@@ -331,18 +331,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
     console.log("Begin of LoadIGCbutton")
-    promptIGCUpload();
     showGridModal((lat, lng, name) => {
     currentGridType = name;
     initMap(lat, lng, false); // Don't use live GPS
     console.log("Before suppression boutton");
     document.getElementById("gridChoiceButton").style.display = "none";
     document.getElementById("leaderboardButton").style.display = "none";
-    //document.getElementById("loadIGCButton").style.display = "none";
+    document.getElementById("loadIGCButton").style.display = "none";
     document.getElementById("resetButton").style.display = "block";
-    console.log("Before loading");
     promptIGCUpload();
-    console.log("After loading");
   });
   };
 
