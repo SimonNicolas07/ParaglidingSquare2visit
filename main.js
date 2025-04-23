@@ -258,26 +258,13 @@ function promptIGCUploadThenGridChoice() {
           if (lngRaw[7] === 'W') lng *= -1;
 
           points.push([lat, lng]);
-        }
-        console.log("I haves points :");
-        console.log(points)
-      
-          currentGridType = name;
-          initMap(lat, lng, false);
-
-          pathCoords.push(...points);
-          if (pathLine) map.removeLayer(pathLine);
-          pathLine = L.polyline(points, { color: "yellow", weight: 3 }).addTo(map);
-          console.log(pathline);
+         }
+         console.log("I haves points :");
 
           for (const [lat, lng] of points) {
             console.log(lat, lng);
-            highlightCurrentSquare(lat, lng);
+            #highlightCurrentSquare(lat, lng);
             updatePath(lat, lng);
-          }
-
-          if (points.length > 0) {
-            map.fitBounds(L.latLngBounds(points));
           }
 
           document.getElementById("gridChoiceButton").style.display = "none";
