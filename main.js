@@ -166,6 +166,7 @@ function initMap(centerLat, centerLng, useGPS = true) {
       weight: 3
     }).addTo(map);
   }
+console.log("Before leaving InitMap")  
 if (!useGPS || !("geolocation" in navigator)) return;
 
   navigator.geolocation.watchPosition(pos => {
