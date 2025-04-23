@@ -79,6 +79,7 @@ function createGrid(centerLat, centerLng) {
       grid.push({ bounds, rect, visited: false });
     }
   }
+  console.log("Finish Create grid");
 }
 
 function highlightCurrentSquare(lat, lng) {
@@ -131,6 +132,7 @@ function updateArrow(lat, lng) {
 }
 
 function initMapOnly(centerLat, centerLng) {
+  console.log("In InitMapOnly");
   L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxZoom: 17,
     attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
@@ -141,6 +143,7 @@ function initMapOnly(centerLat, centerLng) {
 
 // debut initmap
 function initMap(centerLat, centerLng, useGPS = true) {
+  console.log("In initMap");
   createGrid(centerLat, centerLng);
 
   const savedVisited = JSON.parse(localStorage.getItem("mesh_visited") || "[]");
@@ -163,10 +166,12 @@ function initMap(centerLat, centerLng, useGPS = true) {
       color: "yellow",
       weight: 3
     }).addTo(map);
-  }  
-
+  }
+console.log("Before leaving InitMap")  
 if (useGPS && "geolocation" in navigator) {
-    navigator.geolocation.watchPosition(pos => {
+console.log("After if (!useGPS ...")   
+
+  navigator.geolocation.watchPosition(pos => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
     highlightCurrentSquare(lat, lng);
@@ -233,60 +238,54 @@ function showGridModal(callback) {
       });
 }
 
-
-function promptIGCUploadThenGridChoice() {
+function promptIGCUpload() {
+  console.log("In prompt");
   const fileInput = document.getElementById("igcInput");
-  fileInput.value = '';
-
+  fileInput.value = ''; // reset any existing file
+  fileInput.click(); // This opens the file picker dialog
   fileInput.onchange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const lines = e.target.result.split("\n").filter(l => l.startsWith("B"));
-        const points = [];
-
-        for (const line of lines) {
-          const latRaw = line.substring(7, 14);
-          const lngRaw = line.substring(15, 23);
-
-          let lat = parseInt(latRaw.slice(0, 2)) + parseFloat(latRaw.slice(2, 7)) / 60000;
-          let lng = parseInt(lngRaw.slice(0, 3)) + parseFloat(lngRaw.slice(3, 8)) / 60000;
-
-          if (latRaw[6] === 'S') lat *= -1;
-          if (lngRaw[7] === 'W') lng *= -1;
-
-          points.push([lat, lng]);
-        }
-
-        pendingIGCPoints = points;
-        showGridModal((lat, lng, name) => {
-          currentGridType = name;
-          initMap(lat, lng, false);
-
-          for (const [ptLat, ptLng] of pendingIGCPoints) {
-            highlightCurrentSquare(ptLat, ptLng);
-          }
-
-          pathCoords.push(...pendingIGCPoints);
-          if (pathLine) map.removeLayer(pathLine);
-          pathLine = L.polyline(pendingIGCPoints, { color: "yellow", weight: 3 }).addTo(map);
-
-          if (pendingIGCPoints.length > 0) {
-            map.fitBounds(L.latLngBounds(pendingIGCPoints));
-          }
-
-          document.getElementById("gridChoiceButton").style.display = "none";
-          document.getElementById("leaderboardButton").style.display = "none";
-          document.getElementById("loadIGCButton").style.display = "none";
-          document.getElementById("resetButton").style.display = "block";
-        });
-      };
-      reader.readAsText(file);
+    if (file) {      
+      parseIGCFile(file);
     }
-  };
+  }
 }
 
+function parseIGCFile(file) {
+  console.log("File ok, reading...");
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const lines = e.target.result.split("\n").filter(l => l.startsWith("B"));
+    const points = [];
+
+    for (const line of lines) {
+      const latRaw = line.substring(7, 14);
+      const lngRaw = line.substring(15, 23);
+
+      let lat = parseInt(latRaw.slice(0, 2)) + parseFloat(latRaw.slice(2, 7)) / 60000;
+      let lng = parseInt(lngRaw.slice(0, 3)) + parseFloat(lngRaw.slice(3, 8)) / 60000;
+
+      if (latRaw[6] === 'S') lat *= -1;
+      if (lngRaw[7] === 'W') lng *= -1;
+
+      points.push([lat, lng]);
+    }
+
+    for (const [lat, lng] of points) {
+      highlightCurrentSquare(lat, lng);
+    }
+
+    pathCoords.push(...points);
+    if (pathLine) map.removeLayer(pathLine);
+    pathLine = L.polyline(points, { color: "yellow", weight: 3 }).addTo(map);
+
+    if (points.length > 0) {
+      map.fitBounds(L.latLngBounds(points));
+    }
+  alert("📍 IGC track loaded!");  
+  };
+  reader.readAsText(file);
+}
 
 
 
@@ -328,7 +327,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // loadIGC
-  document.getElementById("loadIGCButton").onclick = promptIGCUploadThenGridChoice;
+  document.getElementById("loadIGCButton").onclick = () => {
+    console.log("Begin of LoadIGCbutton")
+    //showGridModal((lat, lng, name) => {
+    //currentGridType = name;
+    //initMap(lat, lng, false); // Don't use live GPS
+    console.log("Before suppression boutton");
+    document.getElementById("gridChoiceButton").style.display = "none";
+    document.getElementById("leaderboardButton").style.display = "none";
+    document.getElementById("loadIGCButton").style.display = "none";
+    document.getElementById("resetButton").style.display = "block";
+    console.log("Before loading");
+    promptIGCUpload();
+    console.log("After loading");
+  });
+  };
 
   // grid choice button
   document.getElementById("gridChoiceButton").onclick = () => {
