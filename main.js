@@ -1,4 +1,7 @@
 // main.js
+
+let currentGridType = "Around me";
+
 const firebaseConfig = {
   apiKey: "AIzaSyCrzvPBLBF4M3J03xa6VJzcsdvk00vQ7RY",
   authDomain: "paraglidingmeshleaderboard.firebaseapp.com",
@@ -151,15 +154,13 @@ function initMap(centerLat, centerLng, useGPS = true) {
   }
 }
 
-function startWithFayolle() {
-  initMap(46.1083495, 4.6189530, true);
-}
-
-function startWithLaMarie() {
-  initMap(46.084143, 4.608334, true);
+function startWith(lat, lng, name) {
+  currentGridType = name;
+  initMap(lat, lng, true);
 }
 
 function startWithGPS() {
+  currentGridType = "Around me";
   navigator.geolocation.getCurrentPosition(pos => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
@@ -168,6 +169,25 @@ function startWithGPS() {
     alert("GPS error: " + err.message);
   });
 }
+
+fetch('startPoints.json')
+  .then(res => res.json())
+  .then(points => {
+    const container = document.getElementById('start-buttons');
+    points.forEach(point => {
+      const btn = document.createElement("button");
+      btn.textContent = point.name;
+      btn.onclick = () => {
+        if (point.gps) {
+          startWithGPS();
+        } else {
+          startWith(point.lat, point.lng, point.name);
+        }
+      };
+      container.appendChild(btn);
+    });
+  });
+
 
 async function saveSession(gridType, visitedCount) {
   try {
@@ -225,11 +245,5 @@ async function saveSession(gridType, visitedCount) {
 }
 
 function handleSave() {
-  const currentLat = map.getCenter().lat.toFixed(4);
-  const currentGridType =
-    currentLat === "46.1083" ? "Fayolle" :
-    currentLat === "46.0841" ? "La Marie" :
-    "Around me";
-
   saveSession(currentGridType, visitedCells.size);
 }
