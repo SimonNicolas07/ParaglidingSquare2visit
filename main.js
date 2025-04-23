@@ -237,6 +237,7 @@ resetBtn.onclick = () => {
     clearAppStateAndReload();
   };
 };
+document.body.appendChild(resetBtn);
 
 function clearAppStateAndReload() {
   localStorage.removeItem("mesh_center");
@@ -244,8 +245,7 @@ function clearAppStateAndReload() {
   localStorage.removeItem("mesh_path");
   location.reload();
 }
-  document.body.appendChild(resetBtn);
-
+  
   // Delay modal display until buttons have been loaded
   fetch('startPoints.json')
     .then(res => res.json())
@@ -265,14 +265,21 @@ function clearAppStateAndReload() {
         container.appendChild(btn);
       });
 
-      // Only show the modal after buttons are there
-      const saved = localStorage.getItem("mesh_center");
+// Only show the modal after buttons are there
+const saved = localStorage.getItem("mesh_center");
       if (saved) {
-        const { lat, lng } = JSON.parse(saved);
-        initMap(lat, lng, true);
-      } else {
-        document.getElementById("startup-modal").style.display = "flex";
+        try {
+          const { lat, lng } = JSON.parse(saved);
+          if (typeof lat === "number" && typeof lng === "number") {
+            initMap(lat, lng, true);
+            return;
+          }
+        } catch (e) {
+          console.warn("Invalid saved state:", e);
+        }
       }
+      // ❗ Show modal only if no valid saved state
+      document.getElementById("startup-modal").style.display = "flex";
     });
 });
 
