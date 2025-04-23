@@ -88,8 +88,6 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    const TOTAL_SQUARES = 900;
-
     function renderTable(data, gridType) {
       const container = document.getElementById("leaderboard");
       const section = document.createElement("div");
@@ -117,13 +115,11 @@
       const tbody = document.createElement("tbody");
 
       data.slice(0, 10).forEach((entry, index) => {
-        const percent = ((entry.score / TOTAL_SQUARES) * 100).toFixed(1);
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : index + 1}</td>
           <td>${entry.pseudo}</td>
           <td>${entry.score}</td>
-          <td>${percent}%</td>
           <td>${entry.timestamp?.toDate().toLocaleDateString() || ''}</td>
           <td><button onclick='showOnMap(${JSON.stringify(entry.visitedBounds)}, ${JSON.stringify(entry.pathCoords)})'>📍</button></td>
         `;
