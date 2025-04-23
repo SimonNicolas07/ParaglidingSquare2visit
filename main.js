@@ -184,10 +184,12 @@ if ("geolocation" in navigator) {
 }
 
 function startWith(lat, lng, name) {
+  console.log("Grid started:", name);
   currentGridType = name;
   initMap(lat, lng, true);
   document.getElementById("gridChoiceButton").style.display = "none";
   document.getElementById("resetButton").style.display = "block";
+  console.log("Grid ended:", name);
 }
 
 function saveAppState() {
