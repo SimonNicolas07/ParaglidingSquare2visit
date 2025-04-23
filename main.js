@@ -169,6 +169,7 @@ function initMap(centerLat, centerLng, useGPS = true) {
   }
 console.log("Before leaving InitMap")  
 if (!useGPS || !("geolocation" in navigator)) return;
+console.log("After if (!useGPS ...")   
 
   navigator.geolocation.watchPosition(pos => {
     const lat = pos.coords.latitude;
@@ -330,10 +331,10 @@ document.addEventListener("DOMContentLoaded", () => {
     showGridModal((lat, lng, name) => {
     currentGridType = name;
     initMap(lat, lng, false); // Don't use live GPS
-    console.log("Before sup boutton");
+    console.log("Before suppression boutton");
     document.getElementById("gridChoiceButton").style.display = "none";
     document.getElementById("leaderboardButton").style.display = "none";
-    document.getElementById("loadIGCButton").style.display = "none";
+    //document.getElementById("loadIGCButton").style.display = "none";
     document.getElementById("resetButton").style.display = "block";
     console.log("Before loading");
     promptIGCUpload();
