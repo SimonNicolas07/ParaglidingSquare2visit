@@ -184,6 +184,7 @@ function startWith(lat, lng, name) {
   initMap(lat, lng, true);
   document.getElementById("gridChoiceButton").style.display = "none";
   document.getElementById("leaderboardButton").style.display = "none";
+  document.getElementById("loadIGCButton").style.display = "none";
   document.getElementById("resetButton").style.display = "block";
 }
 
