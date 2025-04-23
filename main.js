@@ -124,14 +124,16 @@ function updateArrow(lat, lng) {
   lastLng = lng;
 }
 
-function initMap(centerLat, centerLng, useGPS = true) {
-  document.getElementById('startup-modal').style.display = 'none';
+function initMapOnly(centerLat, centerLng) {
   L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxZoom: 17,
     attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
   }).addTo(map);
 
   map.setView([centerLat, centerLng], 14);
+}
+
+function initMap(centerLat, centerLng, useGPS = true) {
   createGrid(centerLat, centerLng);
 
   const savedVisited = JSON.parse(localStorage.getItem("mesh_visited") || "[]");
@@ -199,104 +201,66 @@ function saveAppState() {
 window.addEventListener("beforeunload", saveAppState);
 
 document.addEventListener("DOMContentLoaded", () => {
-  const resetBtn = document.createElement("button");
-  resetBtn.textContent = "🗑 Reset";
-  resetBtn.style.position = "absolute";
-  resetBtn.style.bottom = "80px";
-  resetBtn.style.right = "20px";
-  resetBtn.style.padding = "12px 16px";
-  resetBtn.style.background = "#dc3545";
-  resetBtn.style.color = "white";
-  resetBtn.style.border = "none";
-  resetBtn.style.borderRadius = "8px";
-  resetBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)";
-  resetBtn.style.zIndex = 1100;
-  document.body.appendChild(resetBtn);
-  
-  const confirmBox = document.getElementById("reset-confirm");
-  resetBtn.onclick = () => {
-    confirmBox.style.display = "flex";
-    const yesBtn = document.getElementById("confirm-yes");
-    const noBtn = document.getElementById("confirm-no");
+  const saved = localStorage.getItem("mesh_center");
+  let usedSaved = false;
 
-    const cleanup = () => {
-      confirmBox.style.display = "none";
-      yesBtn.onclick = null;
-      noBtn.onclick = null;
-    };
+  if (saved) {
+    try {
+      const { lat, lng } = JSON.parse(saved);
+      if (typeof lat === "number" && typeof lng === "number") {
+        initMapOnly(lat, lng);
+        usedSaved = true;
+      }
+    } catch (e) {
+      console.warn("Invalid saved center:", e);
+    }
+  }
 
-    yesBtn.onclick = () => {
-      saveSession(currentGridType, visitedCells.size);
-      cleanup();
-      clearAppStateAndReload();
-    };
-
-    noBtn.onclick = () => {
-      cleanup();
-      clearAppStateAndReload();
-    };
-  };
-  })
-  
-
+  if (!usedSaved) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        initMapOnly(pos.coords.latitude, pos.coords.longitude);
+      },
+      err => {
+        initMapOnly(46.1083495, 4.6189530); // fallback: Fayolle
+      },
+      { enableHighAccuracy: true, timeout: 2000 }
+    );
+  }
 
   document.getElementById("gridChoiceButton").onclick = () => {
-  // Load mesh buttons
-  fetch('startPoints.json')
-    .then(res => res.json())
-    .then(points => {
-      const container = document.getElementById('start-buttons');
-      container.innerHTML = '';
-      points.forEach(point => {
-        const btn = document.createElement("button");
-        btn.textContent = point.name;
-        btn.onclick = () => {
-          if (point.gps) {
-            navigator.geolocation.getCurrentPosition(
-              pos => {
-                startWith(pos.coords.latitude, pos.coords.longitude, "Around me");
-              },
-              err => {
-                alert("GPS error. Using default.");
-                startWith(46.1083495, 4.6189530, "Fayolle");
-              }
-            );
-          } else {
-            startWith(point.lat, point.lng, point.name);
-          }
-          document.getElementById("startup-modal").style.display = "none";
-        };
-        container.appendChild(btn);
+    const modal = document.getElementById("startup-modal");
+    modal.style.display = "flex";
+
+    fetch('startPoints.json')
+      .then(res => res.json())
+      .then(points => {
+        const container = document.getElementById('start-buttons');
+        container.innerHTML = '';
+        points.forEach(point => {
+          const btn = document.createElement("button");
+          btn.textContent = point.name;
+          btn.onclick = () => {
+            if (point.gps) {
+              navigator.geolocation.getCurrentPosition(
+                pos => {
+                  startWith(pos.coords.latitude, pos.coords.longitude, "Around me");
+                },
+                err => {
+                  alert("GPS error. Using default.");
+                  startWith(46.1083495, 4.6189530, "Fayolle");
+                }
+              );
+            } else {
+              startWith(point.lat, point.lng, point.name);
+            }
+            modal.style.display = "none";
+          };
+          container.appendChild(btn);
+        });
       });
-    });
-};
-const saved = localStorage.getItem("mesh_center");
-let usedSaved = false;
-
-if (saved) {
-  try {
-    const { lat, lng } = JSON.parse(saved);
-    if (typeof lat === "number" && typeof lng === "number") {
-      map.setView([lat, lng], 14);
-      usedSaved = true;
-    }
-  } catch (e) {
-    console.warn("Invalid saved center:", e);
-  }
-}
-
-if (!usedSaved) {
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      map.setView([pos.coords.latitude, pos.coords.longitude], 14);
-    },
-    err => {
-      map.setView([46.1083495, 4.6189530], 14); // fallback: Fayolle
-    },
-    { enableHighAccuracy: true, timeout: 2000 }
-  );
-}
-
+  };
+});
 
 async function saveSession(gridType, visitedCount) {
   try {
