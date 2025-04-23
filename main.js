@@ -211,16 +211,27 @@ document.addEventListener("DOMContentLoaded", () => {
   resetBtn.style.borderRadius = "8px";
   resetBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)";
   resetBtn.style.zIndex = 1100;
+
   resetBtn.onclick = () => {
-    const wantsSave = confirm("Do you want to save before resetting?");
-    if (wantsSave) {
+    const confirmBox = document.getElementById("reset-confirm");
+    confirmBox.style.display = "flex";
+
+    document.getElementById("confirm-yes").onclick = () => {
       saveSession(currentGridType, visitedCells.size);
-    }
-    localStorage.removeItem("mesh_center");
-    localStorage.removeItem("mesh_visited");
-    localStorage.removeItem("mesh_path");
-    location.reload(); // triggers DOMContentLoaded again
-  };
+      clearAppStateAndReload();
+    };
+
+    document.getElementById("confirm-no").onclick = () => {
+      clearAppStateAndReload();
+    };
+   };
+
+function clearAppStateAndReload() {
+  localStorage.removeItem("mesh_center");
+  localStorage.removeItem("mesh_visited");
+  localStorage.removeItem("mesh_path");
+  location.reload();
+}
   document.body.appendChild(resetBtn);
 
   // Delay modal display until buttons have been loaded
