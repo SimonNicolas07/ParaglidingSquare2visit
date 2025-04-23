@@ -232,18 +232,20 @@ function showGridModal(callback) {
 }
 
 function promptIGCUpload() {
+  console.log("In prompt");
   const fileInput = document.getElementById("igcInput");
   fileInput.value = ''; // reset any existing file
   fileInput.click();
   fileInput.onchange = (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if (file) {      
       parseIGCFile(file);
     }
   }
 }
 
 function parseIGCFile(file) {
+  console.log("File ok, reading...");
   const reader = new FileReader();
   reader.onload = (e) => {
     const lines = e.target.result.split("\n").filter(l => l.startsWith("B"));
@@ -273,6 +275,7 @@ function parseIGCFile(file) {
     if (points.length > 0) {
       map.fitBounds(L.latLngBounds(points));
     }
+  alert("📍 IGC track loaded!");  
   };
   reader.readAsText(file);
 }
@@ -325,7 +328,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("leaderboardButton").style.display = "none";
     document.getElementById("loadIGCButton").style.display = "none";
     document.getElementById("resetButton").style.display = "block";
+    console.log("Before loading");
     promptIGCUpload();
+    console.log("After loading");
   });
   };
 
