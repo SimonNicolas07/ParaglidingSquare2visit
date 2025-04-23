@@ -324,7 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
-    consol.log("Begin of LoadIGCbutton")
+    console.log("Begin of LoadIGCbutton")
     showGridModal((lat, lng, name) => {
     currentGridType = name;
     initMap(lat, lng, false); // Don't use live GPS
