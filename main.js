@@ -330,7 +330,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("loadIGCButton").onclick = () => {
     console.log("Begin of LoadIGCbutton")
     console.log("Before suppression boutton");
-    document.getElementById("gridChoiceButton").style.display = "none";
     document.getElementById("leaderboardButton").style.display = "none";
     document.getElementById("loadIGCButton").style.display = "none";
     document.getElementById("resetButton").style.display = "block";
@@ -341,6 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // grid choice button
   document.getElementById("gridChoiceButton").onclick = () => {
+    document.getElementById("loadIGCButton").style.display = "block";
     showGridModal((lat, lng, name) => {
       startWith(lat, lng, name);
     });
