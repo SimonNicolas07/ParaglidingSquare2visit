@@ -359,5 +359,5 @@ function resetAppState() {
   localStorage.removeItem("mesh_center");
   localStorage.removeItem("mesh_visited");
   localStorage.removeItem("mesh_path");
-  //location.reload();
+  location.reload();
 }
