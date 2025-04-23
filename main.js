@@ -134,24 +134,42 @@ function initMap(centerLat, centerLng, useGPS = true) {
   map.setView([centerLat, centerLng], 14);
   createGrid(centerLat, centerLng);
 
-  if (useGPS) {
-    navigator.geolocation.watchPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      highlightCurrentSquare(lat, lng);
-      updatePath(lat, lng);
-      updateArrow(lat, lng);
-    }, err => {
-      alert("GPS error: " + err.message);
-    }, {
-      enableHighAccuracy: true,
-      maximumAge: 0
-    });
-  } else {
-    highlightCurrentSquare(centerLat, centerLng);
-    updatePath(centerLat, centerLng);
-    updateArrow(centerLat, centerLng);
+  const savedVisited = JSON.parse(localStorage.getItem("mesh_visited") || "[]");
+  savedVisited.forEach(key => visitedCells.add(key));
+
+  grid.forEach(cell => {
+    const [[south, west]] = cell.bounds;
+    const key = `${south.toFixed(5)}_${west.toFixed(5)}`;
+    if (visitedCells.has(key)) {
+      cell.rect.setStyle({ color: "green", fillOpacity: 0.5 });
+      cell.visited = true;
+    }
+  });
+  updateCounter();
+
+  const savedPath = JSON.parse(localStorage.getItem("mesh_path") || "[]");
+  pathCoords.push(...savedPath);
+  if (pathCoords.length) {
+    pathLine = L.polyline(pathCoords.map(p => [p.lat, p.lng]), {
+      color: "yellow",
+      weight: 3
+    }).addTo(map);
   }
+
+  if (!useGPS) return;
+
+  navigator.geolocation.watchPosition(pos => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    highlightCurrentSquare(lat, lng);
+    updatePath(lat, lng);
+    updateArrow(lat, lng);
+  }, err => {
+    alert("GPS error: " + err.message);
+  }, {
+    enableHighAccuracy: true,
+    maximumAge: 0
+  });
 }
 
 function startWith(lat, lng, name) {
@@ -188,6 +206,24 @@ fetch('startPoints.json')
     });
   });
 
+
+function saveAppState() {
+  const center = map.getCenter();
+  localStorage.setItem("mesh_center", JSON.stringify({ lat: center.lat, lng: center.lng }));
+  localStorage.setItem("mesh_visited", JSON.stringify([...visitedCells]));
+  localStorage.setItem("mesh_path", JSON.stringify(pathCoords.map(([lat, lng]) => ({ lat, lng }))));
+}
+window.addEventListener("beforeunload", saveAppState);
+
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("mesh_center");
+  if (saved) {
+    const { lat, lng } = JSON.parse(saved);
+    initMap(lat, lng, true);
+  } else {
+    document.getElementById("startup-modal").style.display = "flex";
+  }
+});
 
 async function saveSession(gridType, visitedCount) {
   try {
