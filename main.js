@@ -168,7 +168,7 @@ function initMap(centerLat, centerLng, useGPS = true) {
     }).addTo(map);
   }
 console.log("Before leaving InitMap")  
-if (!useGPS || !("geolocation" in navigator)) return;
+if (useGPS && "geolocation" in navigator) {
 console.log("After if (!useGPS ...")   
 
   navigator.geolocation.watchPosition(pos => {
@@ -183,6 +183,7 @@ console.log("After if (!useGPS ...")
     enableHighAccuracy: true,
     maximumAge: 0
   });
+}
 } // fin initmap
 
 function startWith(lat, lng, name) {
