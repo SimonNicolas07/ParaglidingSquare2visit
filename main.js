@@ -261,20 +261,21 @@ function promptIGCUploadThenGridChoice() {
         }
         console.log("I haves points :");
         console.log(points)
-        pendingIGCPoints = points;
+      
         showGridModal((lat, lng, name) => {
           currentGridType = name;
           initMap(lat, lng, false);
-
-          for (const [lat, lng] of points) {
-            console.log(lat, lng);
-            highlightCurrentSquare(lat, lng);
-          }
 
           pathCoords.push(...points);
           if (pathLine) map.removeLayer(pathLine);
           pathLine = L.polyline(points, { color: "yellow", weight: 3 }).addTo(map);
           console.log(pathline);
+
+          for (const [lat, lng] of points) {
+            console.log(lat, lng);
+            highlightCurrentSquare(lat, lng);
+            updatePath(lat, lng);
+          }
 
           if (points.length > 0) {
             map.fitBounds(L.latLngBounds(points));
