@@ -188,23 +188,6 @@ function startWithGPS() {
   });
 }
 
-fetch('startPoints.json')
-  .then(res => res.json())
-  .then(points => {
-    const container = document.getElementById('start-buttons');
-    points.forEach(point => {
-      const btn = document.createElement("button");
-      btn.textContent = point.name;
-      btn.onclick = () => {
-        if (point.gps) {
-          startWithGPS();
-        } else {
-          startWith(point.lat, point.lng, point.name);
-        }
-      };
-      container.appendChild(btn);
-    });
-  });
 
 
 function saveAppState() {
@@ -216,16 +199,7 @@ function saveAppState() {
 window.addEventListener("beforeunload", saveAppState);
 
 document.addEventListener("DOMContentLoaded", () => {
-  const saved = localStorage.getItem("mesh_center");
-  if (saved) {
-    const { lat, lng } = JSON.parse(saved);
-    initMap(lat, lng, true);
-  } else {
-    document.getElementById("startup-modal").style.display = "flex";
-  }
-});
-
- const resetBtn = document.createElement("button");
+  const resetBtn = document.createElement("button");
   resetBtn.textContent = "🗑 Reset";
   resetBtn.style.position = "absolute";
   resetBtn.style.bottom = "80px";
@@ -245,10 +219,40 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("mesh_center");
     localStorage.removeItem("mesh_visited");
     localStorage.removeItem("mesh_path");
-    location.reload();
+    location.reload(); // triggers DOMContentLoaded again
   };
   document.body.appendChild(resetBtn);
+
+  // Delay modal display until buttons have been loaded
+  fetch('startPoints.json')
+    .then(res => res.json())
+    .then(points => {
+      const container = document.getElementById('start-buttons');
+      container.innerHTML = ''; // Clear in case of reload
+      points.forEach(point => {
+        const btn = document.createElement("button");
+        btn.textContent = point.name;
+        btn.onclick = () => {
+          if (point.gps) {
+            startWithGPS();
+          } else {
+            startWith(point.lat, point.lng, point.name);
+          }
+        };
+        container.appendChild(btn);
+      });
+
+      // Only show the modal after buttons are there
+      const saved = localStorage.getItem("mesh_center");
+      if (saved) {
+        const { lat, lng } = JSON.parse(saved);
+        initMap(lat, lng, true);
+      } else {
+        document.getElementById("startup-modal").style.display = "flex";
+      }
+    });
 });
+
 
 async function saveSession(gridType, visitedCount) {
   try {
