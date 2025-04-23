@@ -267,12 +267,14 @@ function promptIGCUploadThenGridChoice() {
           initMap(lat, lng, false);
 
           for (const [lat, lng] of points) {
+            console.log(lat, lng);
             highlightCurrentSquare(lat, lng);
           }
 
           pathCoords.push(...points);
           if (pathLine) map.removeLayer(pathLine);
           pathLine = L.polyline(points, { color: "yellow", weight: 3 }).addTo(map);
+          console.log(pathline);
 
           if (points.length > 0) {
             map.fitBounds(L.latLngBounds(points));
