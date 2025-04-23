@@ -211,7 +211,8 @@ document.addEventListener("DOMContentLoaded", () => {
   resetBtn.style.borderRadius = "8px";
   resetBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)";
   resetBtn.style.zIndex = 1100;
-
+  document.body.appendChild(resetBtn);
+  
   const confirmBox = document.getElementById("reset-confirm");
   resetBtn.onclick = () => {
     confirmBox.style.display = "flex";
@@ -235,7 +236,6 @@ document.addEventListener("DOMContentLoaded", () => {
       clearAppStateAndReload();
     };
   };
-  document.body.appendChild(resetBtn);
   })
   
 
