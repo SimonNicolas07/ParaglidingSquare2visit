@@ -75,7 +75,7 @@ html, body {
 
 #loadIGCButton {
   position: absolute;
-  bottom: 140px;
+  bottom: 80px;
   left: 20px;
   z-index: 1100;
   background: #007bff;
