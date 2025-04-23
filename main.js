@@ -190,19 +190,6 @@ function startWith(lat, lng, name) {
   document.getElementById("resetButton").style.display = "block";
 }
 
-function startWithGPS() {
-  currentGridType = "Around me";
-  navigator.geolocation.getCurrentPosition(pos => {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    initMap(lat, lng, true);
-  }, err => {
-    alert("GPS error: " + err.message);
-  });
-}
-
-
-
 function saveAppState() {
   const center = map.getCenter();
   localStorage.setItem("mesh_center", JSON.stringify({ lat: center.lat, lng: center.lng }));
