@@ -343,6 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("loadIGCButton").style.display = "block";
     showGridModal((lat, lng, name) => {
       startWith(lat, lng, name);
+      initMap(lat, lng, False);
     });
   };
 }); // end // DOMContentLoaded
