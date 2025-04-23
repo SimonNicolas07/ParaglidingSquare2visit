@@ -8,6 +8,30 @@
   <link rel="stylesheet" href="leaderboard.css" />
 </head>
 <body>
+
+  <div id="filters" style="text-align:center; margin-bottom: 20px;">
+  <label>
+    Grid:
+    <select id="gridFilter">
+      <option value="all">All</option>
+    </select>
+  </label>
+  &nbsp;&nbsp;
+  <label>
+    Pseudo:
+    <input type="text" id="pseudoFilter" placeholder="Search name" />
+  </label>
+  &nbsp;&nbsp;
+  <label>
+    Rows:
+    <select id="limitFilter">
+      <option value="5">Top 5</option>
+      <option value="10" selected>Top 10</option>
+      <option value="20">Top 20</option>
+    </select>
+  </label>
+</div>
+  
   <h1>🏆 Paragliding Mesh Leaderboard</h1>
   <div style="text-align: center; margin-bottom: 20px;">
     <a href="index.html" id="backButton">← Back to Map</a>
