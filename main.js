@@ -263,7 +263,7 @@ function promptIGCUploadThenGridChoice() {
 
           for (const [lat, lng] of points) {
             console.log(lat, lng);
-            #highlightCurrentSquare(lat, lng);
+            //highlightCurrentSquare(lat, lng);
             updatePath(lat, lng);
           }
 
