@@ -35,12 +35,20 @@ table {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
   border-radius: 6px;
   overflow: hidden;
+  table-layout: fixed;
+  word-wrap: break-word;
 }
 
 th, td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #eee;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+table, th, td {
+  font-size: 14px; /* You can go smaller like 12px if needed */
 }
 
 th {
