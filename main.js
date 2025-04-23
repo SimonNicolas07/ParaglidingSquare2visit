@@ -262,7 +262,6 @@ function promptIGCUploadThenGridChoice() {
         console.log("I haves points :");
         console.log(points)
       
-        showGridModal((lat, lng, name) => {
           currentGridType = name;
           initMap(lat, lng, false);
 
@@ -285,7 +284,7 @@ function promptIGCUploadThenGridChoice() {
           document.getElementById("leaderboardButton").style.display = "none";
           document.getElementById("loadIGCButton").style.display = "none";
           document.getElementById("resetButton").style.display = "block";
-        });
+       
       };
       reader.readAsText(file);
     }
