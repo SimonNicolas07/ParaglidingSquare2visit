@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
         container.appendChild(btn);
       });
     });
-});
+};
 const saved = localStorage.getItem("mesh_center");
 let usedSaved = false;
 
