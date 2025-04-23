@@ -233,15 +233,14 @@ function showGridModal(callback) {
       });
 }
 
+
 function promptIGCUploadThenGridChoice() {
   const fileInput = document.getElementById("igcInput");
   fileInput.value = '';
-  fileInput.click();
-  console.log("Here debut igc upload");
+
   fileInput.onchange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      console.log("file ok");
       const reader = new FileReader();
       reader.onload = (e) => {
         const lines = e.target.result.split("\n").filter(l => l.startsWith("B"));
@@ -258,25 +257,37 @@ function promptIGCUploadThenGridChoice() {
           if (lngRaw[7] === 'W') lng *= -1;
 
           points.push([lat, lng]);
-         }
-         console.log("I haves points :");
+        }
 
-          for (const [lat, lng] of points) {
-            console.log(lat, lng);
-            //highlightCurrentSquare(lat, lng);
-            updatePath(lat, lng);
+        pendingIGCPoints = points;
+        showGridModal((lat, lng, name) => {
+          currentGridType = name;
+          initMap(lat, lng, false);
+
+          for (const [ptLat, ptLng] of pendingIGCPoints) {
+            highlightCurrentSquare(ptLat, ptLng);
+          }
+
+          pathCoords.push(...pendingIGCPoints);
+          if (pathLine) map.removeLayer(pathLine);
+          pathLine = L.polyline(pendingIGCPoints, { color: "yellow", weight: 3 }).addTo(map);
+
+          if (pendingIGCPoints.length > 0) {
+            map.fitBounds(L.latLngBounds(pendingIGCPoints));
           }
 
           document.getElementById("gridChoiceButton").style.display = "none";
           document.getElementById("leaderboardButton").style.display = "none";
           document.getElementById("loadIGCButton").style.display = "none";
           document.getElementById("resetButton").style.display = "block";
-       
+        });
       };
       reader.readAsText(file);
     }
-  }
+  };
 }
+
+
 
 
 function saveAppState() {
