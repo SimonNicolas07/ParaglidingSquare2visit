@@ -212,19 +212,31 @@ document.addEventListener("DOMContentLoaded", () => {
   resetBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)";
   resetBtn.style.zIndex = 1100;
 
-  resetBtn.onclick = () => {
-    const confirmBox = document.getElementById("reset-confirm");
-    confirmBox.style.display = "flex";
+resetBtn.onclick = () => {
+  const confirmBox = document.getElementById("reset-confirm");
+  confirmBox.style.display = "flex";
 
-    document.getElementById("confirm-yes").onclick = () => {
-      saveSession(currentGridType, visitedCells.size);
-      clearAppStateAndReload();
-    };
+  // Use once listeners to avoid stacking multiple clicks
+  const yesBtn = document.getElementById("confirm-yes");
+  const noBtn = document.getElementById("confirm-no");
 
-    document.getElementById("confirm-no").onclick = () => {
-      clearAppStateAndReload();
-    };
-   };
+  const cleanup = () => {
+    confirmBox.style.display = "none";
+    yesBtn.onclick = null;
+    noBtn.onclick = null;
+  };
+
+  yesBtn.onclick = () => {
+    saveSession(currentGridType, visitedCells.size);
+    cleanup();
+    clearAppStateAndReload();
+  };
+
+  noBtn.onclick = () => {
+    cleanup();
+    clearAppStateAndReload();
+  };
+};
 
 function clearAppStateAndReload() {
   localStorage.removeItem("mesh_center");
