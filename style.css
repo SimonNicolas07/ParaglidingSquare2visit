@@ -57,17 +57,16 @@ html, body {
 
 #resetButton {
   position: absolute;
-  bottom: 80px;
+  bottom: 20px;
   left: 20px;
   z-index: 1100;
-  background: #17a2b8;
+  background: #007bff;
   color: white;
   text-decoration: none;
   padding: 12px 16px;
   font-size: 16px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-  border: none;
   cursor: pointer;
 }
 
