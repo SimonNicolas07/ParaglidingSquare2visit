@@ -46,6 +46,7 @@ function updateCounter() {
 }
 
 function createGrid(centerLat, centerLng) {
+  console.log("Create Grid");
   const rows = Math.floor(areaSizeMeters / gridSizeMeters);
   const cols = rows;
   totalSquares = rows * cols;
@@ -130,6 +131,7 @@ function updateArrow(lat, lng) {
 }
 
 function initMapOnly(centerLat, centerLng) {
+  console.log("In InitMapOnly");
   L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxZoom: 17,
     attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
