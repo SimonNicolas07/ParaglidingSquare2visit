@@ -89,6 +89,44 @@ html, body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
+#startup-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: none; /* Default hidden */
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.modal-box {
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  font-family: sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-box button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px 18px;
+  font-size: 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal-box button:hover {
+  background: #0056b3;
+}
+
 #leaderboardButton:hover {
   background: #0056b3;
 }
