@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Fayolle",
+    "lat": 46.1083495,
+    "lng": 4.618953
+  },
+  {
+    "name": "La Marie",
+    "lat": 46.084143,
+    "lng": 4.608334
+  },
+  {
+    "name": "Around Me",
+    "gps": true
+  }
+]
