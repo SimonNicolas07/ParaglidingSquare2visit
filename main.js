@@ -187,6 +187,7 @@ function startWith(lat, lng, name) {
   currentGridType = name;
   initMap(lat, lng, true);
   document.getElementById("gridChoiceButton").style.display = "none";
+  document.getElementById("leaderboardButton").style.display = "none";
   document.getElementById("resetButton").style.display = "block";
 }
 
