@@ -329,8 +329,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
     console.log("Begin of LoadIGCbutton")
-    //showGridModal((lat, lng, name) => {
-    //currentGridType = name;
+    showGridModal((lat, lng, name) => {
+    currentGridType = name;
     //initMap(lat, lng, false); // Don't use live GPS
     console.log("Before suppression boutton");
     document.getElementById("gridChoiceButton").style.display = "none";
