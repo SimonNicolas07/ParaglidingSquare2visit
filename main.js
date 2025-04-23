@@ -339,15 +339,17 @@ document.getElementById("resetButton").onclick = () => {
     </div>
   `;
   document.body.appendChild(confirmBox);
-
+  console.log("before cleanup:");
   const cleanup = () => confirmBox.remove();
-
+  console.log("after cleanup:");
   document.getElementById("confirm-yes").onclick = () => {
+    console.log("save session");
     saveSession(currentGridType, visitedCells.size);
     cleanup();
     resetAppState();
   };
   document.getElementById("confirm-no").onclick = () => {
+    console.log("No save");
     cleanup();
     resetAppState();
   };
@@ -357,5 +359,5 @@ function resetAppState() {
   localStorage.removeItem("mesh_center");
   localStorage.removeItem("mesh_visited");
   localStorage.removeItem("mesh_path");
-  location.reload();
+  //location.reload();
 }
