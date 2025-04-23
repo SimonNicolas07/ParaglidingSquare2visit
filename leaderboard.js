@@ -54,6 +54,8 @@ function renderTable(data, gridType) {
   title.textContent = `Grid: ${gridType}`;
   section.appendChild(title);
 
+  const tableContainer = document.createElement("div");
+  tableContainer.classList.add("table-container");
   const table = document.createElement("table");
   const thead = document.createElement("thead");
   thead.innerHTML = `
@@ -82,6 +84,7 @@ function renderTable(data, gridType) {
   });
 
   table.appendChild(tbody);
+  tableContainer.appendChild(table);
   section.appendChild(table);
   container.appendChild(section);
 }
