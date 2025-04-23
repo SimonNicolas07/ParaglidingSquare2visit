@@ -9,9 +9,9 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const map = L.map('map').setView([46.1, 4.6], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
   maxZoom: 18,
-  attribution: '© OpenStreetMap contributors'
+  attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
 }).addTo(map);
 
 let fullData = {}; // Store all leaderboard entries
