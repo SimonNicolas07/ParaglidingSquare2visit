@@ -138,6 +138,7 @@ function initMapOnly(centerLat, centerLng) {
   map.setView([centerLat, centerLng], 14);
 }
 
+// debut initmap
 function initMap(centerLat, centerLng, useGPS = true) {
   createGrid(centerLat, centerLng);
 
@@ -162,10 +163,8 @@ function initMap(centerLat, centerLng, useGPS = true) {
       weight: 3
     }).addTo(map);
   }
+if (!useGPS || !("geolocation" in navigator)) return;
 
-  if (!useGPS) return;
-
-if ("geolocation" in navigator) {
   navigator.geolocation.watchPosition(pos => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
@@ -178,10 +177,7 @@ if ("geolocation" in navigator) {
     enableHighAccuracy: true,
     maximumAge: 0
   });
-} else {
-  alert("Geolocation is not supported by your browser.");
-}
-}
+} // fin initmap
 
 function startWith(lat, lng, name) {
   currentGridType = name;
@@ -191,43 +187,8 @@ function startWith(lat, lng, name) {
   document.getElementById("resetButton").style.display = "block";
 }
 
-function saveAppState() {
-  const center = map.getCenter();
-  localStorage.setItem("mesh_center", JSON.stringify({ lat: center.lat, lng: center.lng }));
-  localStorage.setItem("mesh_visited", JSON.stringify([...visitedCells]));
-  localStorage.setItem("mesh_path", JSON.stringify(pathCoords.map(([lat, lng]) => ({ lat, lng }))));
-}
-window.addEventListener("beforeunload", saveAppState);
 
-document.addEventListener("DOMContentLoaded", () => {
-  const saved = localStorage.getItem("mesh_center");
-  let usedSaved = false;
-
-  if (saved) {
-    try {
-      const { lat, lng } = JSON.parse(saved);
-      if (typeof lat === "number" && typeof lng === "number") {
-        initMapOnly(lat, lng);
-        usedSaved = true;
-      }
-    } catch (e) {
-      console.warn("Invalid saved center:", e);
-    }
-  }
-
-  if (!usedSaved) {
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        initMapOnly(pos.coords.latitude, pos.coords.longitude);
-      },
-      err => {
-        initMapOnly(46.1083495, 4.6189530); // fallback: Fayolle
-      },
-      { enableHighAccuracy: true, timeout: 2000 }
-    );
-  }
-
-  document.getElementById("gridChoiceButton").onclick = () => {
+function showGridModal(callback) {
     const modal = document.getElementById("startup-modal");
     modal.style.display = "flex";
 
@@ -267,8 +228,118 @@ document.addEventListener("DOMContentLoaded", () => {
           container.appendChild(btn);
         });
       });
+}
+
+function promptIGCUpload() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".igc";
+  input.style.display = "none";
+  document.body.appendChild(input);
+
+  input.onchange = () => {
+    const file = input.files[0];
+    if (file) {
+      parseIGCFile(file);
+    }
+    document.body.removeChild(input);
   };
-});
+
+  input.click();
+}
+
+function parseIGCFile(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const lines = e.target.result.split("\n").filter(l => l.startsWith("B"));
+    const points = [];
+
+    for (const line of lines) {
+      const latRaw = line.substring(7, 14);
+      const lngRaw = line.substring(15, 23);
+
+      let lat = parseInt(latRaw.slice(0, 2)) + parseFloat(latRaw.slice(2, 7)) / 60000;
+      let lng = parseInt(lngRaw.slice(0, 3)) + parseFloat(lngRaw.slice(3, 8)) / 60000;
+
+      if (latRaw[6] === 'S') lat *= -1;
+      if (lngRaw[7] === 'W') lng *= -1;
+
+      points.push([lat, lng]);
+    }
+
+    for (const [lat, lng] of points) {
+      highlightCurrentSquare(lat, lng);
+    }
+
+    pathCoords.push(...points);
+    if (pathLine) map.removeLayer(pathLine);
+    pathLine = L.polyline(points, { color: "yellow", weight: 3 }).addTo(map);
+
+    if (points.length > 0) {
+      map.fitBounds(L.latLngBounds(points));
+    }
+  };
+  reader.readAsText(file);
+}
+
+
+
+function saveAppState() {
+  const center = map.getCenter();
+  localStorage.setItem("mesh_center", JSON.stringify({ lat: center.lat, lng: center.lng }));
+  localStorage.setItem("mesh_visited", JSON.stringify([...visitedCells]));
+  localStorage.setItem("mesh_path", JSON.stringify(pathCoords.map(([lat, lng]) => ({ lat, lng }))));
+}
+window.addEventListener("beforeunload", saveAppState);
+
+// Start DOMContentLoaded
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("mesh_center");
+  let usedSaved = false;
+
+  if (saved) {
+    try {
+      const { lat, lng } = JSON.parse(saved);
+      if (typeof lat === "number" && typeof lng === "number") {
+        initMapOnly(lat, lng);
+        usedSaved = true;
+      }
+    } catch (e) {
+      console.warn("Invalid saved center:", e);
+    }
+  }
+
+  if (!usedSaved) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        initMapOnly(pos.coords.latitude, pos.coords.longitude);
+      },
+      err => {
+        initMapOnly(46.1083495, 4.6189530); // fallback: Fayolle
+      },
+      { enableHighAccuracy: true, timeout: 2000 }
+    );
+  }
+
+  // loadIGC
+  document.getElementById("loadIGCButton").onclick = () => {
+  showGridModal((lat, lng, name) => {
+    currentGridType = name;
+    initMap(lat, lng, false); // Don't use live GPS
+    document.getElementById("gridChoiceButton").style.display = "none";
+    document.getElementById("leaderboardButton").style.display = "none";
+    document.getElementById("resetButton").style.display = "block";
+    promptIGCUpload();
+  });
+  };
+
+  // grid choice button
+  document.getElementById("gridChoiceButton").onclick = () => {
+    showGridModal((lat, lng, name) => {
+      startWith(lat, lng, name);
+    });
+  };
+}); // end // DOMContentLoaded
 
 async function saveSession(gridType, visitedCount) {
   try {
