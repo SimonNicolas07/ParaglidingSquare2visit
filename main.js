@@ -165,6 +165,7 @@ function initMap(centerLat, centerLng, useGPS = true) {
 
   if (!useGPS) return;
 
+if ("geolocation" in navigator) {
   navigator.geolocation.watchPosition(pos => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
@@ -177,6 +178,9 @@ function initMap(centerLat, centerLng, useGPS = true) {
     enableHighAccuracy: true,
     maximumAge: 0
   });
+} else {
+  alert("Geolocation is not supported by your browser.");
+}
 }
 
 function startWith(lat, lng, name) {
