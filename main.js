@@ -57,6 +57,11 @@ function createGrid(centerLat, centerLng) {
   const startLat = snapToGrid(centerLat, deltaLat) - (rows / 2) * deltaLat;
   const startLng = snapToGrid(centerLng, deltaLng) - (cols / 2) * deltaLng;
 
+  const centerGridLat = startLat + (rows / 2) * deltaLat;
+  const centerGridLng = startLng + (cols / 2) * deltaLng;
+  map.setView([centerGridLat, centerGridLng], 14);
+
+
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       const south = startLat + i * deltaLat;
@@ -177,6 +182,8 @@ function initMap(centerLat, centerLng, useGPS = true) {
 function startWith(lat, lng, name) {
   currentGridType = name;
   initMap(lat, lng, true);
+  document.getElementById("gridChoiceButton").style.display = "none";
+  document.getElementById("resetButton").style.display = "block";
 }
 
 function startWithGPS() {
@@ -328,4 +335,36 @@ async function saveSession(gridType, visitedCount) {
 
 function handleSave() {
   saveSession(currentGridType, visitedCells.size);
+}
+
+document.getElementById("resetButton").onclick = () => {
+  const confirmBox = document.createElement("div");
+  confirmBox.innerHTML = `
+    <div style="position: fixed; top: 30%; left: 50%; transform: translateX(-50%);
+      background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 9999;">
+      <p>Do you want to save before resetting?</p>
+      <button id="resetYes">Yes</button>
+      <button id="resetNo">No</button>
+    </div>
+  `;
+  document.body.appendChild(confirmBox);
+
+  const cleanup = () => confirmBox.remove();
+
+  document.getElementById("resetYes").onclick = () => {
+    saveSession(currentGridType, visitedCells.size);
+    cleanup();
+    resetAppState();
+  };
+  document.getElementById("resetNo").onclick = () => {
+    cleanup();
+    resetAppState();
+  };
+};
+
+function resetAppState() {
+  localStorage.removeItem("mesh_center");
+  localStorage.removeItem("mesh_visited");
+  localStorage.removeItem("mesh_path");
+  location.reload();
 }
