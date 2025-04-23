@@ -237,37 +237,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   document.body.appendChild(resetBtn);
 
-  const chooseBtn = document.createElement("button");
-  chooseBtn.textContent = "📍 Grid choice";
-  chooseBtn.style.position = "absolute";
-  chooseBtn.style.bottom = "130px";
-  chooseBtn.style.right = "20px";
-  chooseBtn.style.padding = "12px 16px";
-  chooseBtn.style.background = "#007bff";
-  chooseBtn.style.color = "white";
-  chooseBtn.style.border = "none";
-  chooseBtn.style.borderRadius = "8px";
-  chooseBtn.style.boxShadow = "0 2px 5px rgba(0,0,0,0.3)";
-  chooseBtn.style.zIndex = 1100;
-  chooseBtn.onclick = () => {
-    document.getElementById("startup-modal").style.display = "flex";
-  };
-  document.body.appendChild(chooseBtn);
 
-  // Try to get position on startup (without grid)
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      map.setView([pos.coords.latitude, pos.coords.longitude], 14);
-    },
-    err => {
-      map.setView([46.1083495, 4.6189530], 14); // Fayolle default
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 2000
-    }
-  );
-
+  document.getElementById("gridChoiceButton").onclick = () => {
   // Load mesh buttons
   fetch('startPoints.json')
     .then(res => res.json())
