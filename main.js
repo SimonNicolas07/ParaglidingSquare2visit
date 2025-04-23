@@ -241,18 +241,27 @@ document.addEventListener("DOMContentLoaded", () => {
           const btn = document.createElement("button");
           btn.textContent = point.name;
           btn.onclick = () => {
-            if (point.gps) {
+          if (point.gps) {
+            if ("geolocation" in navigator) {
               navigator.geolocation.getCurrentPosition(
                 pos => {
                   startWith(pos.coords.latitude, pos.coords.longitude, "Around me");
+                  document.getElementById("startup-modal").style.display = "none";
                 },
                 err => {
                   alert("GPS error. Using default.");
                   startWith(46.1083495, 4.6189530, "Fayolle");
+                  document.getElementById("startup-modal").style.display = "none";
                 }
               );
             } else {
-              startWith(point.lat, point.lng, point.name);
+              alert("Geolocation not supported. Using default.");
+              startWith(46.1083495, 4.6189530, "Fayolle");
+              document.getElementById("startup-modal").style.display = "none";
+            }
+          } else {
+            startWith(point.lat, point.lng, point.name);
+            document.getElementById("startup-modal").style.display = "none";
             }
             modal.style.display = "none";
           };
