@@ -142,6 +142,7 @@ function initMapOnly(centerLat, centerLng) {
 
 // debut initmap
 function initMap(centerLat, centerLng, useGPS = true) {
+  console.log("In initMap");
   createGrid(centerLat, centerLng);
 
   const savedVisited = JSON.parse(localStorage.getItem("mesh_visited") || "[]");
@@ -323,7 +324,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
-  showGridModal((lat, lng, name) => {
+    consol.log("Begin of LoadIGCbutton")
+    showGridModal((lat, lng, name) => {
     currentGridType = name;
     initMap(lat, lng, false); // Don't use live GPS
     console.log("Before sup boutton");
