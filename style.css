@@ -27,27 +27,6 @@ html, body {
   z-index: 1000;
 }
 
-#startup-modal {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-#startup-modal .box {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  font-family: sans-serif;
-  text-align: center;
-}
-
 .arrow-marker {
   width: 10px;
   height: 10px;
