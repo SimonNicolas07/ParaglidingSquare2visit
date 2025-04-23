@@ -57,7 +57,7 @@ html, body {
 
 #gridChoiceButton {
   position: absolute;
-  bottom: 70px;
+  bottom: 80px;
   left: 20px;
   z-index: 1100;
   background: #17a2b8;
