@@ -28,15 +28,25 @@ h1 {
   font-weight: bold;
 }
 
+/* Freeze the table header */
 table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  z-index: 2;
+  border-bottom: 2px solid #ddd;
+}
+
+.table-container {
+  max-height: 400px; /* Adjust height as needed */
+  overflow-y: auto;
+  border: 1px solid #ccc;
   border-radius: 6px;
-  overflow: hidden;
-  table-layout: fixed;
-  word-wrap: break-word;
 }
 
 th, td {
@@ -47,8 +57,16 @@ th, td {
   word-break: break-word;
 }
 
+/* Adjust the rest of the styles */
 table, th, td {
-  font-size: 14px; /* You can go smaller like 12px if needed */
+  font-size: 14px;
+  text-align: left;
+  padding: 10px;
+  word-break: break-word;
+}
+
+tbody tr:nth-child(even) {
+  background: #f9f9f9;
 }
 
 th {
