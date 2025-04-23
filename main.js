@@ -79,6 +79,7 @@ function createGrid(centerLat, centerLng) {
       grid.push({ bounds, rect, visited: false });
     }
   }
+  console.log("Finish Create grid");
 }
 
 function highlightCurrentSquare(lat, lng) {
