@@ -232,21 +232,14 @@ function showGridModal(callback) {
 }
 
 function promptIGCUpload() {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".igc";
-  input.style.display = "none";
-  document.body.appendChild(input);
-
-  input.onchange = () => {
-    const file = input.files[0];
-    if (file) {
+  const fileInput = document.getElementById("igcInput");
+  fileInput.value = ''; // reset any existing file
+  fileInput.click();
+  fileInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) return{
       parseIGCFile(file);
-    }
-    document.body.removeChild(input);
-  };
-
-  input.click();
+  }
 }
 
 function parseIGCFile(file) {
@@ -329,6 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initMap(lat, lng, false); // Don't use live GPS
     document.getElementById("gridChoiceButton").style.display = "none";
     document.getElementById("leaderboardButton").style.display = "none";
+    document.getElementById("loadIGCButton").style.display = "none";
     document.getElementById("resetButton").style.display = "block";
     promptIGCUpload();
   });
