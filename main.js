@@ -216,25 +216,7 @@ async function saveSession(gridType, visitedCount) {
     `;
     document.body.appendChild(badge);
 
-    const tip = document.createElement("div");
-    tip.textContent = "📸 Don't forget to take a screenshot!";
-    tip.style.position = "absolute";
-    tip.style.bottom = "80px";
-    tip.style.left = "50%";
-    tip.style.transform = "translateX(-50%)";
-    tip.style.background = "rgba(0,0,0,0.8)";
-    tip.style.color = "white";
-    tip.style.padding = "10px 20px";
-    tip.style.borderRadius = "8px";
-    tip.style.fontSize = "16px";
-    tip.style.zIndex = "9999";
-    document.body.appendChild(tip);
-
-    setTimeout(() => {
-      if (tip.parentNode) document.body.removeChild(tip);
-    }, 5000);
-
-    alert("✅ Score saved!\n📸 Don't forget to take a screenshot now!");
+    alert("✅ Score saved!");
 
   } catch (err) {
     console.error("Save error:", err);
