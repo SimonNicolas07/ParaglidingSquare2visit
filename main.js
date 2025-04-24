@@ -159,18 +159,16 @@ function initMap(centerLat, centerLng, useGPS = true) {
   });
   updateCounter();
 
-  const savedPath = JSON.parse(localStorage.getItem("mesh_path") || "[]");
-  pathCoords.push(...savedPath);
+  //const savedPath = JSON.parse(localStorage.getItem("mesh_path") || "[]");
+  //pathCoords.push(...savedPath);
   if (pathCoords.length) {
     pathLine = L.polyline(pathCoords.map(p => [p.lat, p.lng]), {
       color: "yellow",
       weight: 3
     }).addTo(map);
   }
-console.log("Before leaving InitMap")  
-if (useGPS && "geolocation" in navigator) {
-console.log("After if (!useGPS ...")   
 
+if (useGPS && "geolocation" in navigator) {
   navigator.geolocation.watchPosition(pos => {
     const lat = pos.coords.latitude;
     const lng = pos.coords.longitude;
