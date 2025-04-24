@@ -265,10 +265,10 @@ function parseIGCFile(file) {
       igcDate = new Date(year, month, day);
     }
     console.log(dateLine)
-    consol.log(year)
-    consol.log(month)
-    consol.log(day)
-    consol.log(igcDate)
+    console.log(year)
+    console.log(month)
+    console.log(day)
+    console.log(igcDate)
 
     // Process track points
     lines.filter(l => l.startsWith("B")).forEach(line => {
