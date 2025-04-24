@@ -176,8 +176,6 @@
         const data = doc.data();
         const coords = data.pathCoords.map(p => [p.lat, p.lng]);
 
-        document.getElementById('mapModal').style.display = 'flex';
-
         setTimeout(() => {
           if (mapInstance) {
             mapInstance.remove();
@@ -190,7 +188,8 @@
             const polyline = L.polyline(coords, { color: 'blue' }).addTo(mapInstance);
             mapInstance.fitBounds(polyline.getBounds());
           }
-        }, 200);
+          document.getElementById('mapModal').style.display = 'flex';
+        }, 100);
       });
     }
 
@@ -200,3 +199,4 @@
   </script>
 </body>
 </html>
+
