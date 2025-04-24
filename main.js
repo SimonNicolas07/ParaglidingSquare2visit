@@ -325,6 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
+    document.getElementById("loadIGCButton").style.display = "none";
     promptIGCUpload();
   };
 
@@ -346,6 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("leaderboardButton").style.display = "none";
     document.getElementById("loadIGCButton").style.display = "none";
     document.getElementById("resetButton").style.display = "block";
+    document.getElementById("gridForIGC").style.display = "none"; 
     showGridModal((lat, lng, name) => {
       startWith(lat, lng, name);
     });
