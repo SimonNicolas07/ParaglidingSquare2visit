@@ -195,8 +195,10 @@
             mapInstance.remove();
           }
           mapInstance = L.map('mapView');
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors & CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19
           }).addTo(mapInstance);
           if (coords.length) {
             const polyline = L.polyline(coords, { color: 'blue' }).addTo(mapInstance);
