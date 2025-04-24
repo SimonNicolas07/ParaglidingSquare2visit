@@ -89,36 +89,6 @@ function renderTable(data, gridType) {
   container.appendChild(section);
 }
 
-function showOnMap(bounds, path) {
-  map.eachLayer(layer => {
-    if (layer instanceof L.Polyline || layer instanceof L.Rectangle) {
-      map.removeLayer(layer);
-    }
-  });
-
-  const latLngs = [];
-  bounds.forEach(b => {
-    const rect = L.rectangle([[b.south, b.west], [b.north, b.east]], {
-      color: "green",
-      weight: 1,
-      fillOpacity: 0.5
-    }).addTo(map);
-    latLngs.push([b.south, b.west], [b.north, b.east]);
-  });
-
-  if (path && path.length) {
-    const line = L.polyline(path.map(p => [p.lat, p.lng]), {
-      color: "yellow",
-      weight: 3
-    }).addTo(map);
-    latLngs.push(...path.map(p => [p.lat, p.lng]));
-  }
-
-  if (latLngs.length) {
-    map.fitBounds(latLngs);
-  }
-}
-
 // Fetch and populate leaderboard
 function loadLeaderboard() {
   db.collection("scores")
