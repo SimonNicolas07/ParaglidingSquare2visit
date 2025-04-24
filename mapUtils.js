@@ -22,8 +22,10 @@ function showOnMap(map, bounds, path) {
     }).addTo(map);
     latLngs.push(...path.map(p => [p.lat, p.lng]));
   }
-
+  console.log("HERE");
   if (latLngs.length) {
     map.fitBounds(latLngs);
+    map.setZoom(14)
   }
+  console.log("ICI");
 }
