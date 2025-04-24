@@ -264,6 +264,11 @@ function parseIGCFile(file) {
       const year = 2000 + parseInt(dateLine.substring(9, 11));
       igcDate = new Date(year, month, day);
     }
+    console.log(dateLine)
+    consol.log(year)
+    consol.log(month)
+    consol.log(day)
+    consol.log(igcDate)
 
     // Process track points
     lines.filter(l => l.startsWith("B")).forEach(line => {
