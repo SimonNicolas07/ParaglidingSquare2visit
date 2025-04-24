@@ -288,42 +288,26 @@ function parseIGCFile(file) {
 
 
 
-function saveAppState() {
-  const center = map.getCenter();
-  localStorage.setItem("mesh_center", JSON.stringify({ lat: center.lat, lng: center.lng }));
-  localStorage.setItem("mesh_visited", JSON.stringify([...visitedCells]));
-  localStorage.setItem("mesh_path", JSON.stringify(pathCoords.map(([lat, lng]) => ({ lat, lng }))));
-}
-window.addEventListener("beforeunload", saveAppState);
+//function saveAppState() {
+//  const center = map.getCenter();
+//  localStorage.setItem("mesh_center", JSON.stringify({ lat: center.lat, lng: center.lng }));
+//  localStorage.setItem("mesh_visited", JSON.stringify([...visitedCells]));
+//  localStorage.setItem("mesh_path", JSON.stringify(pathCoords.map(([lat, lng]) => ({ lat, lng }))));
+//}
+//window.addEventListener("beforeunload", saveAppState);
 
 // Start DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
-  const saved = localStorage.getItem("mesh_center");
-  let usedSaved = false;
-
-  if (saved) {
-    try {
-      const { lat, lng } = JSON.parse(saved);
-      if (typeof lat === "number" && typeof lng === "number") {
-        initMapOnly(lat, lng);
-        usedSaved = true;
-      }
-    } catch (e) {
-      console.warn("Invalid saved center:", e);
-    }
-  }
-
-  if (!usedSaved) {
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        initMapOnly(pos.coords.latitude, pos.coords.longitude);
-      },
-      err => {
-        initMapOnly(46.1083495, 4.6189530); // fallback: Fayolle
-      },
-      { enableHighAccuracy: true, timeout: 2000 }
-    );
-  }
+  // chargement de la carte avec position de user ou fayolle
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      initMapOnly(pos.coords.latitude, pos.coords.longitude);
+    },
+    err => {
+      initMapOnly(46.1083495, 4.6189530); // fallback Fayolles
+    },
+    {enableHighAccuracy: true, timeout:2000}
+};
 
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
