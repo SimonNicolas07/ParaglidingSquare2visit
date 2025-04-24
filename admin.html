@@ -10,33 +10,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
   <script src="mapUtils.js"></script>
-  <style>
-    #mapModal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.6);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-
-    #closeMapBtn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: #dc3545;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
-      cursor: pointer;
-      z-index: 10001; /* <-- Ensure it’s above Leaflet controls */
-   }
-    
+  <style>  
     #mapContainer {
       width: 80vw;
       height: 80vh;
@@ -86,12 +60,25 @@
     </table>
   </div>
 
-  <div id="mapModal">
-    <div id="mapContainer">
-      <button id="closeMapBtn" onclick="closeMap()">Close</button>
-      <div id="mapView"></div>
+    <div style="display: flex; gap: 20px;">
+      <div id="admin" style="flex: 1;">
+        <!-- Table stays the same -->
+        <button onclick="logout()">Logout</button>
+        <table border="1" id="leaderboardTable">
+          <thead>
+            <tr>
+              <th>Pseudo</th>
+              <th>Score</th>
+              <th>Grid Type</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="mapView" style="flex: 1; height: 80vh;"></div>
     </div>
-  </div>
 
   <script>
     const firebaseConfig = {
@@ -191,26 +178,21 @@
         const data = doc.data();
         const visited = data.visitedBounds || [];
         const path = data.pathCoords || [];
-        setTimeout(() => {
-          if (mapInstance) mapInstance.remove();
-          mapInstance = L.map('mapView');
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors & CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 19
-          }).addTo(mapInstance);
-          
-          // This will now correctly center and zoom
-          showOnMap(mapInstance, visited, path);
     
-          document.getElementById('mapModal').style.display = 'flex';
-        }, 100);
+        if (mapInstance) mapInstance.remove();
+    
+        mapInstance = L.map('mapView');
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; OpenStreetMap contributors & CartoDB',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(mapInstance);
+    
+        showOnMap(mapInstance, visited, path);
       });
     }
     
-    function closeMap() {
-      document.getElementById('mapModal').style.display = 'none';
-    }
+
   </script>
 </body>
 </html>
