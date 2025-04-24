@@ -340,7 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("gridForIGC").style.display = "none"; 
       showGridModal((lat, lng, name) => {
         currentGridType = name ;
-        initMap(lat, lng, name);
+        initMap(lat, lng, false);
       });
   };
   
