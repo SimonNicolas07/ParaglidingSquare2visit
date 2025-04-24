@@ -38,47 +38,27 @@
 </head>
 <body>
   <h1>Admin Leaderboard</h1>
-  <div id="login" style="display:none;">
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <button onclick="sendPasswordReset()">Forgot Password?</button>
-  </div>
-  <div id="admin" style="display:none;">
-    <button onclick="logout()">Logout</button>
-    <table border="1" id="leaderboardTable">
-      <thead>
-        <tr>
-          <th>Pseudo</th>
-          <th>Score</th>
-          <th>Grid Type</th>
-          <th>Date</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-    <div style="display: flex; gap: 20px;">
-      <div id="admin" style="flex: 1;">
-        <!-- Table stays the same -->
-        <button onclick="logout()">Logout</button>
-        <table border="1" id="leaderboardTable">
-          <thead>
-            <tr>
-              <th>Pseudo</th>
-              <th>Score</th>
-              <th>Grid Type</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div id="mapView" style="flex: 1; height: 80vh;"></div>
+ 
+  <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px;">
+    <div id="admin" style="flex: 1; margin: 0;">
+      <!-- Leaderboard table stays the same -->
+      <button onclick="logout()">Logout</button>
+      <table border="1" id="leaderboardTable" style="width: 100%;">
+        <thead>
+          <tr>
+            <th>Pseudo</th>
+            <th>Score</th>
+            <th>Grid Type</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
+  
+    <div id="mapView" style="flex: 1; height: 80vh; min-width: 400px; margin: 0;"></div>
+  </div>
 
   <script>
     const firebaseConfig = {
