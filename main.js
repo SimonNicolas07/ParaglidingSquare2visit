@@ -330,9 +330,28 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 }); // end // DOMContentLoaded
 
+async function getOrAskPseudo() {
+  let pseudo = localStorage.getItem("pseudo");
+
+  if (pseudo) {
+    const keep = confirm(`Continue as "${pseudo}"?`);
+    if (!keep) {
+      pseudo = prompt("Enter your new pseudo:");
+      if (!pseudo) return null;
+      localStorage.setItem("pseudo", pseudo);
+    }
+  } else {
+    pseudo = prompt("Enter your pseudo:");
+    if (!pseudo) return null;
+    localStorage.setItem("pseudo", pseudo);
+  }
+
+  return pseudo;
+}
+
 async function saveSession(gridType, visitedCount) {
   try {
-    const pseudo = prompt("Enter your pseudo:");
+    const pseudo = await getOrAskPseudo();
     if (!pseudo) return;
 
     // Convert visited bounds to Firestore-safe data
