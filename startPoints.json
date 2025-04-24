@@ -10,6 +10,16 @@
     "lng": 4.608334
   },
   {
+    "name": "Oingt",
+    "lat": 45.957156, 
+    "lng": 4.592426
+  },  
+  {
+    "name": "Letra",
+    "lat": 45.956200, 
+    "lng": 4.490641
+  },    
+  {
     "name": "Around Me",
     "gps": true
   }
