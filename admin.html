@@ -193,13 +193,16 @@
         const path = data.pathCoords || [];
         setTimeout(() => {
           if (mapInstance) mapInstance.remove();
-          mapInstance = L.map('mapView').setView([46.1, 4.6], 13);
+          mapInstance = L.map('mapView');
           L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap contributors & CartoDB',
             subdomains: 'abcd',
             maxZoom: 19
           }).addTo(mapInstance);
+          
+          // This will now correctly center and zoom
           showOnMap(mapInstance, visited, path);
+    
           document.getElementById('mapModal').style.display = 'flex';
         }, 100);
       });
