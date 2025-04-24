@@ -325,24 +325,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
-    console.log("Begin of LoadIGCbutton")
-    console.log("Before suppression boutton");
-    document.getElementById("leaderboardButton").style.display = "none";
-    document.getElementById("loadIGCButton").style.display = "none";
-    document.getElementById("resetButton").style.display = "block";
-    console.log("Before loading");
     promptIGCUpload();
-    console.log("After loading");
   };
 
   // grid choice only for load igc
     document.getElementById("gridForIGC").onclick = () => {
     document.getElementById("loadIGCButton").style.display = "block";
+    document.getElementById("resetButton").style.display = "block";
+    document.getElementById("leaderboardButton").style.display = "none";
+    document.getElementById("gridChoiceButton").style.display = "none"; 
+    document.getElementById("gridForIGC").style.display = "none";  
       initMap(lat, lng, False);
   };
   
   // grid choice button for take off
-  document.getElementById("gridChoiceButton").onclick = () => {
+    document.getElementById("gridChoiceButton").onclick = () => {
+    document.getElementById("leaderboardButton").style.display = "none";
+    document.getElementById("loadIGCButton").style.display = "none";
+    document.getElementById("resetButton").style.display = "block";
     showGridModal((lat, lng, name) => {
       startWith(lat, lng, name);
     });
