@@ -184,7 +184,7 @@
         });
       }
     }
-
+ 
     let mapInstance;
     function viewMap(id) {
       db.collection("scores").doc(id).get().then(doc => {
@@ -193,10 +193,11 @@
         const path = data.pathCoords || [];
         setTimeout(() => {
           if (mapInstance) mapInstance.remove();
-          mapInstance = L.map('mapView');
-          L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxZoom: 17,
-            attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
+            mapInstance = L.map('map').setView([46.1, 4.6], 13);
+            L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+              maxZoom: 18,
+              attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
+            }).addTo(map);
           }).addTo(mapInstance);
           showOnMap(mapInstance, visited, path);
           document.getElementById('mapModal').style.display = 'flex';
