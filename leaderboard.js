@@ -9,9 +9,9 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const map = L.map('map').setView([46.1, 4.6], 13);
-L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-  attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
+L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+	maxZoom: 20,
+	attribution: '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
 let fullData = {}; // Store all leaderboard entries
