@@ -38,10 +38,15 @@
 </head>
 <body>
   <h1>Admin Leaderboard</h1>
- 
+   <div id="login" style="display:none;">
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <button onclick="sendPasswordReset()">Forgot Password?</button>
+  </div>
   <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px;">
     <div id="admin" style="flex: 1; margin: 0;">
-      <!-- Leaderboard table stays the same -->
+       <!-- Leaderboard table stays the same -->
       <button onclick="logout()">Logout</button>
       <table border="1" id="leaderboardTable" style="width: 100%;">
         <thead>
