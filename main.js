@@ -256,12 +256,12 @@ function parseIGCFile(file) {
     const lines = e.target.result.split("\n");
     const points = [];
 
-    // Try to extract the date from HFDTE line
+    // Try to extract the date from HFDTE line HFDTEDATE:230125,00 HFDTE280324
     const dateLine = lines.find(line => line.startsWith("HFDTE"));
     if (dateLine) {
-      const day = parseInt(dateLine.substring(5, 7));
-      const month = parseInt(dateLine.substring(7, 9)) - 1; // Months are 0-indexed
-      const year = 2000 + parseInt(dateLine.substring(9, 11));
+      const day = parseInt(dateLine.substring(10, 12));
+      const month = parseInt(dateLine.substring(12, 14)) - 1; // Months are 0-indexed
+      const year = 2000 + parseInt(dateLine.substring(14, 16));
       igcDate = new Date(year, month, day);
       console.log(dateLine)
       console.log(year)
