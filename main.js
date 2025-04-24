@@ -404,7 +404,7 @@ async function saveSession(gridType, visitedCount) {
     `;
     document.body.appendChild(badge);
 
-    alert("✅ Score saved with pseudo : ", pseudo);
+    alert("✅ Score saved with pseudo : " + pseudo);
 
   } catch (err) {
     console.error("Save error:", err);
