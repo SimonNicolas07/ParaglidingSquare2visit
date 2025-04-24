@@ -330,12 +330,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // grid choice only for load igc
     document.getElementById("gridForIGC").onclick = () => {
-    document.getElementById("loadIGCButton").style.display = "block";
-    document.getElementById("resetButton").style.display = "block";
-    document.getElementById("leaderboardButton").style.display = "none";
-    document.getElementById("gridChoiceButton").style.display = "none"; 
-    document.getElementById("gridForIGC").style.display = "none";  
-      initMap(lat, lng, False);
+      document.getElementById("loadIGCButton").style.display = "block";
+      document.getElementById("resetButton").style.display = "block";
+      document.getElementById("leaderboardButton").style.display = "none";
+      document.getElementById("gridChoiceButton").style.display = "none"; 
+      document.getElementById("gridForIGC").style.display = "none"; 
+      showGridModal((lat, lng, name) => {
+        currentGridType = name ;
+        initMap(lat, lng, name);
+      });
   };
   
   // grid choice button for take off
