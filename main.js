@@ -46,7 +46,6 @@ function updateCounter() {
 }
 
 function createGrid(centerLat, centerLng) {
-  console.log("Create Grid");
   const rows = Math.floor(areaSizeMeters / gridSizeMeters);
   const cols = rows;
   totalSquares = rows * cols;
@@ -79,7 +78,6 @@ function createGrid(centerLat, centerLng) {
       grid.push({ bounds, rect, visited: false });
     }
   }
-  console.log("Finish Create grid");
 }
 
 function highlightCurrentSquare(lat, lng) {
@@ -132,7 +130,6 @@ function updateArrow(lat, lng) {
 }
 
 function initMapOnly(centerLat, centerLng) {
-  console.log("In InitMapOnly");
   L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxZoom: 17,
     attribution: 'Map data: © OpenTopoMap, SRTM | © OpenStreetMap contributors'
@@ -143,7 +140,6 @@ function initMapOnly(centerLat, centerLng) {
 
 // debut initmap
 function initMap(centerLat, centerLng, useGPS = true) {
-  console.log("In initMap");
   createGrid(centerLat, centerLng);
 
   const savedVisited = JSON.parse(localStorage.getItem("mesh_visited") || "[]");
@@ -285,16 +281,6 @@ function parseIGCFile(file) {
   };
   reader.readAsText(file);
 }
-
-
-
-//function saveAppState() {
-//  const center = map.getCenter();
-//  localStorage.setItem("mesh_center", JSON.stringify({ lat: center.lat, lng: center.lng }));
-//  localStorage.setItem("mesh_visited", JSON.stringify([...visitedCells]));
-//  localStorage.setItem("mesh_path", JSON.stringify(pathCoords.map(([lat, lng]) => ({ lat, lng }))));
-//}
-//window.addEventListener("beforeunload", saveAppState);
 
 // Start DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
