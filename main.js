@@ -331,22 +331,30 @@ document.addEventListener("DOMContentLoaded", () => {
 }); // end // DOMContentLoaded
 
 async function getOrAskPseudo() {
-  let pseudo = localStorage.getItem("pseudo");
+  const saved = localStorage.getItem("pseudo");
+  if (saved) return saved;
 
-  if (pseudo) {
-    const keep = confirm(`Continue as "${pseudo}"?`);
-    if (!keep) {
-      pseudo = prompt("Enter your new pseudo:");
-      if (!pseudo) return null;
+  while (true) {
+    const pseudo = prompt("Enter your pseudo:");
+    if (!pseudo) continue;
+
+    const snapshot = await db.collection("scores")
+      .where("pseudo", "==", pseudo)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      // Not found in Firestore — use it
       localStorage.setItem("pseudo", pseudo);
+      return pseudo;
+    } else {
+      const confirmUse = confirm(`The pseudo "${pseudo}" already exists. Do you want to continue using it?`);
+      if (confirmUse) {
+        localStorage.setItem("pseudo", pseudo);
+        return pseudo;
+      }
     }
-  } else {
-    pseudo = prompt("Enter your pseudo:");
-    if (!pseudo) return null;
-    localStorage.setItem("pseudo", pseudo);
   }
-
-  return pseudo;
 }
 
 async function saveSession(gridType, visitedCount) {
@@ -396,7 +404,7 @@ async function saveSession(gridType, visitedCount) {
     `;
     document.body.appendChild(badge);
 
-    alert("✅ Score saved!");
+    alert("✅ Score saved with pseudo : ", pseudo);
 
   } catch (err) {
     console.error("Save error:", err);
