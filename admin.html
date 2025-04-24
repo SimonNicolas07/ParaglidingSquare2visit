@@ -13,6 +13,7 @@
   <div id="login" style="display:none;">
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
+    <p><a href="#" onclick="sendPasswordReset()">Forgot password?</a></p>
     <button onclick="login()">Login</button>
   </div>
   <div id="admin" style="display:none;">
@@ -65,6 +66,17 @@
 
     function logout() {
       auth.signOut();
+    }
+
+    function sendPasswordReset() {
+      const email = document.getElementById('email').value;
+      if (!email) {
+      alert("Please enter your email first.");
+      return;
+      }
+      firebase.auth().sendPasswordResetEmail(email)
+       .then(() => alert("✅ Password reset email sent. Check your inbox!"))
+       .catch(err => alert("❌ " + err.message));
     }
 
     function loadLeaderboard() {
