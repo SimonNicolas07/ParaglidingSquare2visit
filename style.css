@@ -92,6 +92,26 @@ html, body {
   background: #0056b3;
 }
 
+#gridForIGC {
+  position: absolute;
+  bottom: 80px;
+  left: 20px;
+  z-index: 1100;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  padding: 12px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  border: none;
+  cursor: pointer;
+}
+#gridForIGC:hover {
+  background: #0056b3;
+}
+
+
 #gridChoiceButton {
   position: absolute;
   bottom: 80px;
