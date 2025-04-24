@@ -210,23 +210,27 @@ function showGridModal(callback) {
             if ("geolocation" in navigator) {
               navigator.geolocation.getCurrentPosition(
                 pos => {
-                  startWith(pos.coords.latitude, pos.coords.longitude, "Around me");
-                  document.getElementById("startup-modal").style.display = "none";
+                  callback(pos.coords.latitude, pos.coords.longitude, "Around me");
+                  //startWith(pos.coords.latitude, pos.coords.longitude, "Around me");
+                  //document.getElementById("startup-modal").style.display = "none";
                 },
                 err => {
                   alert("GPS error. Using default.");
-                  startWith(46.1083495, 4.6189530, "Fayolle");
-                  document.getElementById("startup-modal").style.display = "none";
+                  callback(46.1083495, 4.6189530, "Fayolle");
+                  //startWith(46.1083495, 4.6189530, "Fayolle");
+                  //document.getElementById("startup-modal").style.display = "none";
                 }
               );
             } else {
               alert("Geolocation not supported. Using default.");
-              startWith(46.1083495, 4.6189530, "Fayolle");
-              document.getElementById("startup-modal").style.display = "none";
+              callback(46.1083495, 4.6189530, "Fayolle");
+              //startWith(46.1083495, 4.6189530, "Fayolle");
+              //document.getElementById("startup-modal").style.display = "none";
             }
           } else {
-            startWith(point.lat, point.lng, point.name);
-            document.getElementById("startup-modal").style.display = "none";
+            callback(point.lat, point.lng, point.name);
+            //startWith(point.lat, point.lng, point.name);
+            //document.getElementById("startup-modal").style.display = "none";
             }
             modal.style.display = "none";
           };
