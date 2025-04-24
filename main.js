@@ -1,6 +1,7 @@
 // main.js
 
 let currentGridType = "Around me";
+let igcDate = null;
 
 const firebaseConfig = {
   apiKey: "AIzaSyCrzvPBLBF4M3J03xa6VJzcsdvk00vQ7RY",
@@ -248,12 +249,24 @@ function promptIGCUpload() {
 }
 
 function parseIGCFile(file) {
+  igcDate = null; // Reset previous IGC date
   const reader = new FileReader();
+
   reader.onload = (e) => {
-    const lines = e.target.result.split("\n").filter(l => l.startsWith("B"));
+    const lines = e.target.result.split("\n");
     const points = [];
 
-    for (const line of lines) {
+    // Try to extract the date from HFDTE line
+    const dateLine = lines.find(line => line.startsWith("HFDTE"));
+    if (dateLine) {
+      const day = parseInt(dateLine.substring(5, 7));
+      const month = parseInt(dateLine.substring(7, 9)) - 1; // Months are 0-indexed
+      const year = 2000 + parseInt(dateLine.substring(9, 11));
+      igcDate = new Date(year, month, day);
+    }
+
+    // Process track points
+    lines.filter(l => l.startsWith("B")).forEach(line => {
       const latRaw = line.substring(7, 14);
       const lngRaw = line.substring(15, 23);
 
@@ -264,7 +277,7 @@ function parseIGCFile(file) {
       if (lngRaw[7] === 'W') lng *= -1;
 
       points.push([lat, lng]);
-    }
+    });
 
     for (const [lat, lng] of points) {
       highlightCurrentSquare(lat, lng);
@@ -277,8 +290,10 @@ function parseIGCFile(file) {
     if (points.length > 0) {
       map.fitBounds(L.latLngBounds(points));
     }
-  alert("📍 IGC track loaded!");  
+
+    alert("📍 IGC track loaded!");
   };
+
   reader.readAsText(file);
 }
 
@@ -377,7 +392,7 @@ async function saveSession(gridType, visitedCount) {
       pseudo,
       score: visitedCount,
       gridType,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      timestamp: igcDate ? firebase.firestore.Timestamp.fromDate(igcDate) : firebase.firestore.FieldValue.serverTimestamp(),
       pathCoords: pathCoords.map(([lat, lng]) => ({ lat, lng })),
       visitedBounds: visited
     });
