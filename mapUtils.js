@@ -1,4 +1,4 @@
-function showOnMap(bounds, path) {
+function showOnMap(map, bounds, path) {
   map.eachLayer(layer => {
     if (layer instanceof L.Polyline || layer instanceof L.Rectangle) {
       map.removeLayer(layer);
