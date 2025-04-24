@@ -94,7 +94,7 @@ html, body {
 
 #gridForIGC {
   position: absolute;
-  bottom: 80px;
+  bottom: 140px;
   left: 20px;
   z-index: 1100;
   background: #007bff;
