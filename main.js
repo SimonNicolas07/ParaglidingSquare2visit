@@ -299,7 +299,8 @@ function parseIGCFile(file) {
 // Start DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
   // chargement de la carte avec position de user ou fayolle
-  navigator.geolocation.getCurrentPosition(
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
     pos => {
       initMapOnly(pos.coords.latitude, pos.coords.longitude);
     },
@@ -308,6 +309,9 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     {enableHighAccuracy: true, timeout:2000}
   );
+  } else {
+    initMapOnly(46.1083495, 4.6189530); // fallback Fayolles
+  }
 
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
