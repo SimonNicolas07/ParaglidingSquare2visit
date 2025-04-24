@@ -263,12 +263,13 @@ function parseIGCFile(file) {
       const month = parseInt(dateLine.substring(7, 9)) - 1; // Months are 0-indexed
       const year = 2000 + parseInt(dateLine.substring(9, 11));
       igcDate = new Date(year, month, day);
+      console.log(dateLine)
+      console.log(year)
+      console.log(month)
+      console.log(day)
+      console.log(igcDate)
     }
-    console.log(dateLine)
-    console.log(year)
-    console.log(month)
-    console.log(day)
-    console.log(igcDate)
+
 
     // Process track points
     lines.filter(l => l.startsWith("B")).forEach(line => {
