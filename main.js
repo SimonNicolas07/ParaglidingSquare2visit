@@ -191,7 +191,6 @@ function startWith(lat, lng, name) {
   initMap(lat, lng, true);
   document.getElementById("gridChoiceButton").style.display = "none";
   document.getElementById("leaderboardButton").style.display = "none";
-  //document.getElementById("loadIGCButton").style.display = "none";
   document.getElementById("resetButton").style.display = "block";
 }
 
@@ -239,7 +238,6 @@ function showGridModal(callback) {
 }
 
 function promptIGCUpload() {
-  console.log("In prompt");
   const fileInput = document.getElementById("igcInput");
   fileInput.value = ''; // reset any existing file
   fileInput.click(); // This opens the file picker dialog
@@ -252,7 +250,6 @@ function promptIGCUpload() {
 }
 
 function parseIGCFile(file) {
-  console.log("File ok, reading...");
   const reader = new FileReader();
   reader.onload = (e) => {
     const lines = e.target.result.split("\n").filter(l => l.startsWith("B"));
@@ -338,12 +335,16 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("After loading");
   };
 
-  // grid choice button
-  document.getElementById("gridChoiceButton").onclick = () => {
+  // grid choice only for load igc
+    document.getElementById("gridForIGC").onclick = () => {
     document.getElementById("loadIGCButton").style.display = "block";
+      initMap(lat, lng, False);
+  };
+  
+  // grid choice button for take off
+  document.getElementById("gridChoiceButton").onclick = () => {
     showGridModal((lat, lng, name) => {
       startWith(lat, lng, name);
-      //initMap(lat, lng, False);
     });
   };
 }); // end // DOMContentLoaded
