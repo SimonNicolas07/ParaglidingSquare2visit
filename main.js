@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
       initMapOnly(46.1083495, 4.6189530); // fallback Fayolles
     },
     {enableHighAccuracy: true, timeout:2000}
-};
+});
 
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
