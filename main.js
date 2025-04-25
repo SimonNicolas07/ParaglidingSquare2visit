@@ -143,8 +143,8 @@ L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
 function initMap(centerLat, centerLng, useGPS = true) {
   createGrid(centerLat, centerLng);
 
-  const savedVisited = JSON.parse(localStorage.getItem("mesh_visited") || "[]");
-  savedVisited.forEach(key => visitedCells.add(key));
+  //const savedVisited = JSON.parse(localStorage.getItem("mesh_visited") || "[]");
+  //savedVisited.forEach(key => visitedCells.add(key));
 
   grid.forEach(cell => {
     const [[south, west]] = cell.bounds;
@@ -156,8 +156,6 @@ function initMap(centerLat, centerLng, useGPS = true) {
   });
   updateCounter();
 
-  //const savedPath = JSON.parse(localStorage.getItem("mesh_path") || "[]");
-  //pathCoords.push(...savedPath);
   if (pathCoords.length) {
     pathLine = L.polyline(pathCoords.map(p => [p.lat, p.lng]), {
       color: "yellow",
@@ -180,14 +178,6 @@ if (useGPS && "geolocation" in navigator) {
   });
 }
 } // fin initmap
-
-function startWith(lat, lng, name) {
-  currentGridType = name;
-  initMap(lat, lng, true);
-  document.getElementById("gridChoiceButton").style.display = "none";
-  document.getElementById("leaderboardButton").style.display = "none";
-  document.getElementById("resetButton").style.display = "block";
-}
 
 
 function showGridModal(callback) {
@@ -340,7 +330,6 @@ document.addEventListener("DOMContentLoaded", () => {
     showGridModal((lat, lng, name) => {
       currentGridType = name ;
       initMap(lat, lng, true);	    
-      //startWith(lat, lng, name);
     });
   };
 }); // end // DOMContentLoaded
