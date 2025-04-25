@@ -143,10 +143,7 @@ L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
 function initMap(centerLat, centerLng, useGPS = true) {
   createGrid(centerLat, centerLng);
 
-  //const savedVisited = JSON.parse(localStorage.getItem("mesh_visited") || "[]");
-  //savedVisited.forEach(key => visitedCells.add(key));
-
-  grid.forEach(cell => {
+grid.forEach(cell => {
     const [[south, west]] = cell.bounds;
     const key = `${south.toFixed(5)}_${west.toFixed(5)}`;
     if (visitedCells.has(key)) {
@@ -327,6 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("loadIGCButton").style.display = "none";
     document.getElementById("resetButton").style.display = "block";
     document.getElementById("gridForIGC").style.display = "none"; 
+    document.getElementById("gridChoiceButton").style.display = "none"; 
     showGridModal((lat, lng, name) => {
       currentGridType = name ;
       initMap(lat, lng, true);	    
