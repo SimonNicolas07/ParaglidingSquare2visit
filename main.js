@@ -208,26 +208,18 @@ function showGridModal(callback) {
               navigator.geolocation.getCurrentPosition(
                 pos => {
                   callback(pos.coords.latitude, pos.coords.longitude, "Around me");
-                  //startWith(pos.coords.latitude, pos.coords.longitude, "Around me");
-                  //document.getElementById("startup-modal").style.display = "none";
                 },
                 err => {
                   alert("GPS error. Using default.");
                   callback(46.1083495, 4.6189530, "Fayolle");
-                  //startWith(46.1083495, 4.6189530, "Fayolle");
-                  //document.getElementById("startup-modal").style.display = "none";
                 }
               );
             } else {
               alert("Geolocation not supported. Using default.");
               callback(46.1083495, 4.6189530, "Fayolle");
-              //startWith(46.1083495, 4.6189530, "Fayolle");
-              //document.getElementById("startup-modal").style.display = "none";
             }
           } else {
             callback(point.lat, point.lng, point.name);
-            //startWith(point.lat, point.lng, point.name);
-            //document.getElementById("startup-modal").style.display = "none";
             }
             modal.style.display = "none";
           };
@@ -346,7 +338,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("resetButton").style.display = "block";
     document.getElementById("gridForIGC").style.display = "none"; 
     showGridModal((lat, lng, name) => {
-      startWith(lat, lng, name);
+      currentGridType = name ;
+      initMap(lat, lng, true);	    
+      //startWith(lat, lng, name);
     });
   };
 }); // end // DOMContentLoaded
