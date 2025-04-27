@@ -284,6 +284,15 @@ function parseIGCFile(file) {
 
 // Start DOMContentLoaded
 document.addEventListener("DOMContentLoaded", () => {
+  const pseudo = await getOrAskPseudo();
+  updatePseudoDisplay(pseudo);
+
+  if (!pseudo) {
+    alert("Pseudo is required to continue. Reloading page...");
+    location.reload();
+    return;
+  }	
+	
   // chargement de la carte avec position de user ou fayolle
   if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(
@@ -337,8 +346,11 @@ async function getOrAskPseudo() {
   if (saved) return saved;
 
   while (true) {
-    const pseudo = prompt("Enter your pseudo:");
-    if (!pseudo) continue;
+    const pseudo = prompt("Enter your pseudo (required):");
+    if (!pseudo) {
+      alert("⚠️ You must enter a pseudo to use the app!");
+      continue;
+    }
 
     const snapshot = await db.collection("scores")
       .where("pseudo", "==", pseudo)
@@ -346,7 +358,6 @@ async function getOrAskPseudo() {
       .get();
 
     if (snapshot.empty) {
-      // Not found in Firestore — use it
       localStorage.setItem("pseudo", pseudo);
       return pseudo;
     } else {
@@ -357,6 +368,17 @@ async function getOrAskPseudo() {
       }
     }
   }
+}
+
+document.getElementById("changePseudoBtn").onclick = async () => {
+  localStorage.removeItem("pseudo");  // Clear the old pseudo
+  const newPseudo = await getOrAskPseudo(); // Re-ask
+  updatePseudoDisplay(newPseudo);
+  location.reload(); // Force reload the app with new pseudo
+};
+
+function updatePseudoDisplay(pseudo) {
+  document.getElementById("pseudoDisplay").textContent = `Pseudo: ${pseudo}`;
 }
 
 async function saveSession(gridType, visitedCount) {
