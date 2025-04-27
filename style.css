@@ -75,7 +75,7 @@ html, body {
 
 #pseudoLabel {
   position: absolute;
-  top: 120px;
+  top: 130px;
   left: 10px;
   z-index: 1100;
   padding: 12px 16px;
