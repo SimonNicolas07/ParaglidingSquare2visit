@@ -327,7 +327,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       document.getElementById("resetButton").style.display = "block";
       document.getElementById("leaderboardButton").style.display = "none";
       document.getElementById("gridChoiceButton").style.display = "none"; 
-      document.getElementById("gridForIGC").style.display = "none"; 
+      document.getElementById("gridForIGC").style.display = "none";
+      document.getElementById("pseudoButton").style.display = "none"; 
+      document.getElementById("pseudoLabel").style.display = "none";
       showGridModal((lat, lng, name) => {
         currentGridType = name ;
         initMap(lat, lng, false);
@@ -341,6 +343,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("resetButton").style.display = "block";
     document.getElementById("gridForIGC").style.display = "none"; 
     document.getElementById("gridChoiceButton").style.display = "none"; 
+    document.getElementById("pseudoButton").style.display = "none"; 
+    document.getElementById("pseudoLabel").style.display = "none";
     showGridModal((lat, lng, name) => {
       currentGridType = name ;
       initMap(lat, lng, true);	    
