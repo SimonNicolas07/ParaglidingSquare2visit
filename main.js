@@ -450,7 +450,7 @@ document.getElementById("resetButton").onclick = () => {
   confirmBox.innerHTML = `
     <div style="position: fixed; top: 30%; left: 50%; transform: translateX(-50%);
       background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 9999;">
-      <p>Do you want to save before resetting?</p>
+      <p>Voulez vous sauvegarder avant de ré-initialiser ?</p>
       <button id="confirm-yes">Yes</button>
       <button id="confirm-no">No</button>
     </div>
