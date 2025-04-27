@@ -57,7 +57,7 @@ html, body {
 #pseudoButton {
   position: absolute;
   top: 20px;
-  right: 20px;
+  right: 200px;
   z-index: 1100;
   padding: 12px 16px;
   font-size: 16px;
