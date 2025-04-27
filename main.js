@@ -308,7 +308,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     initMapOnly(46.1083495, 4.6189530); // fallback Fayolles
   }
 
-  document.getElementById("changePseudoBtn").onclick = async () => {
+  document.getElementById("pseudoButton").onclick = async () => {
   localStorage.removeItem("pseudo");  // Clear the old pseudo
   const newPseudo = await getOrAskPseudo(); // Re-ask
   updatePseudoDisplay(newPseudo);
