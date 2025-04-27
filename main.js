@@ -312,7 +312,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   localStorage.removeItem("pseudo");  // Clear the old pseudo
   const newPseudo = await getOrAskPseudo(); // Re-ask
   updatePseudoDisplay(newPseudo);
-  location.reload(); // Force reload the app with new pseudo
+  //location.reload(); // Force reload the app with new pseudo
   };
 	
   // loadIGC
@@ -353,9 +353,9 @@ async function getOrAskPseudo() {
   if (saved) return saved;
 
   while (true) {
-    const pseudo = prompt("Enter your pseudo (required):");
+    const pseudo = prompt("Entrez votre prénom et nom (obligatoire):");
     if (!pseudo) {
-      alert("⚠️ You must enter a pseudo to use the app!");
+      alert("⚠️ Vous devez obligatoirement entrer votre prénom et nom!");
       continue;
     }
 
@@ -368,7 +368,7 @@ async function getOrAskPseudo() {
       localStorage.setItem("pseudo", pseudo);
       return pseudo;
     } else {
-      const confirmUse = confirm(`The pseudo "${pseudo}" already exists. Do you want to continue using it?`);
+      const confirmUse = confirm(`Le pseudo "${pseudo}" existe deja dans la base de donnée de résultats. VOulez-vous l'utiliser quand même?`);
       if (confirmUse) {
         localStorage.setItem("pseudo", pseudo);
         return pseudo;
@@ -429,7 +429,7 @@ async function saveSession(gridType, visitedCount) {
     `;
     document.body.appendChild(badge);
 
-    alert("✅ Score saved with pseudo : " + pseudo);
+    alert("✅ Score sauvegarder avec le pseudo : " + pseudo);
 
   } catch (err) {
     console.error("Save error:", err);
