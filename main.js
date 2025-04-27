@@ -391,29 +391,53 @@ async function saveSession(gridType, visitedCount) {
     const pseudo = await getOrAskPseudo();
     if (!pseudo) return;
 
-    // Convert visited bounds to Firestore-safe data
-    const visited = Array.from(visitedCells).map(key => {
+    if (visitedCount === 0) {
+      alert("⚠️ Score = 0 non sauvegardé");
+      return;
+    }
+
+    const currentPath = pathCoords.map(p => ({ lat: p[0], lng: p[1] }));
+    const currentVisited = Array.from(visitedCells).map(key => {
       const [south, west] = key.split("_").map(Number);
       const deltaLat = metersToDegreesLat(gridSizeMeters);
       const deltaLng = metersToDegreesLng(gridSizeMeters, south);
       const north = south + deltaLat;
       const east = west + deltaLng;
-      return { south, west, north, east };
+    return { south, west, north, east };
     });
 
-    // Save the simplified structure
+    // First, check by pseudo and score only
+    const snapshot = await db.collection("scores")
+      .where("pseudo", "==", pseudo)
+      .where("score", "==", visitedCount)
+      .where("gridType", "==", gridType)
+      .get();
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+
+      // Now deep compare path and visitedBounds if score and pseudo match
+      const samePath = JSON.stringify(data.pathCoords || []) === JSON.stringify(currentPath);
+      const sameVisited = JSON.stringify(data.visitedBounds || []) === JSON.stringify(currentVisited);
+
+      if (samePath && sameVisited) {
+        alert("⚠️ Déjà sauvegardé !");
+        return;
+      }
+    }
+
+    // Nothing found -> Save it
     const docRef = await db.collection("scores").add({
       pseudo,
       score: visitedCount,
       gridType,
-      timestamp: igcDate ? firebase.firestore.Timestamp.fromDate(igcDate) : firebase.firestore.FieldValue.serverTimestamp(),
-      pathCoords: pathCoords.map(([lat, lng]) => ({ lat, lng })),
-      visitedBounds: visited
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      pathCoords: currentPath,
+      visitedBounds: currentVisited
     });
 
     console.log("Score saved with ID:", docRef.id);
 
-    // Show badge and tip as before
     const badge = document.createElement("div");
     badge.style.position = "absolute";
     badge.style.top = "10px";
@@ -433,7 +457,7 @@ async function saveSession(gridType, visitedCount) {
     `;
     document.body.appendChild(badge);
 
-    alert("✅ Score sauvegarder avec le pseudo : " + pseudo);
+    alert("✅ Score saved!");
 
   } catch (err) {
     console.error("Save error:", err);
