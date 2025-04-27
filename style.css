@@ -110,7 +110,7 @@ html, body {
 
 #loadIGCButton {
   position: absolute;
-  bottom: 80px;
+  bottom: 70px;
   left: 20px;
   z-index: 1100;
   background: #007bff;
@@ -129,7 +129,7 @@ html, body {
 
 #gridForIGC {
   position: absolute;
-  bottom: 140px;
+  bottom: 120px;
   left: 20px;
   z-index: 1100;
   background: #007bff;
@@ -149,7 +149,7 @@ html, body {
 
 #gridChoiceButton {
   position: absolute;
-  bottom: 80px;
+  bottom: 70px;
   left: 20px;
   z-index: 1100;
   background: #007bff;
