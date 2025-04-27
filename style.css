@@ -54,6 +54,25 @@ html, body {
   background: #0056b3;
 }
 
+#pseudoButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1100;
+  padding: 12px 16px;
+  font-size: 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+#pseudoButton:hover {
+  background: #0056b3;
+}
+
 #resetButton {
   position: absolute;
   bottom: 20px;
