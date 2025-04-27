@@ -379,7 +379,7 @@ async function getOrAskPseudo() {
 
 function updatePseudoDisplay(pseudo) {
   const label = document.getElementById("pseudoLabel");
-  label.textContent = `Pseudo: ${pseudo}`;
+  label.textContent = `${pseudo}`;
 }
 
 async function saveSession(gridType, visitedCount) {
