@@ -283,7 +283,7 @@ function parseIGCFile(file) {
 }
 
 // Start DOMContentLoaded
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const pseudo = await getOrAskPseudo();
   updatePseudoDisplay(pseudo);
 
@@ -308,6 +308,13 @@ document.addEventListener("DOMContentLoaded", () => {
     initMapOnly(46.1083495, 4.6189530); // fallback Fayolles
   }
 
+  document.getElementById("changePseudoBtn").onclick = async () => {
+  localStorage.removeItem("pseudo");  // Clear the old pseudo
+  const newPseudo = await getOrAskPseudo(); // Re-ask
+  updatePseudoDisplay(newPseudo);
+  location.reload(); // Force reload the app with new pseudo
+  };
+	
   // loadIGC
   document.getElementById("loadIGCButton").onclick = () => {
     document.getElementById("loadIGCButton").style.display = "none";
@@ -369,13 +376,6 @@ async function getOrAskPseudo() {
     }
   }
 }
-
-document.getElementById("changePseudoBtn").onclick = async () => {
-  localStorage.removeItem("pseudo");  // Clear the old pseudo
-  const newPseudo = await getOrAskPseudo(); // Re-ask
-  updatePseudoDisplay(newPseudo);
-  location.reload(); // Force reload the app with new pseudo
-};
 
 function updatePseudoDisplay(pseudo) {
   document.getElementById("pseudoDisplay").textContent = `Pseudo: ${pseudo}`;
