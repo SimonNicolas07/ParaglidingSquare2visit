@@ -412,8 +412,6 @@ async function saveSession(gridType, visitedCount) {
       .where("score", "==", visitedCount)
       .where("gridType", "==", gridType)
       .get();
-
-    console.log(snapshot)
 	  
     for (const doc of snapshot.docs) {
       console.log("In same data !")
