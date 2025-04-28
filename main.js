@@ -80,7 +80,7 @@ function createGrid(centerLat, centerLng) {
       grid.push({ bounds, rect, visited: false });
     }
   }
-  loadAllVisitedSquares(db, pseudo, gridType).then(visitedSet => {
+  loadAllVisitedSquares(db, pseudo, currentGridType).then(visitedSet => {
     displayVisitedSquares(L, map, visitedSet, "blue");
   });
 }
