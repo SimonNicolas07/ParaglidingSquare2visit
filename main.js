@@ -28,6 +28,7 @@ const areaSizeMeters = 6000;
 let totalSquares = 0;
 let lastLat = null;
 let lastLng = null;
+let pseudo = null;
 
 function metersToDegreesLat(meters) {
   return meters / 111320;
