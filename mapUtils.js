@@ -29,3 +29,41 @@ function showOnMap(map, bounds, path) {
   }
   console.log("ICI");
 }
+
+
+
+async function loadAllVisitedSquares(db, pseudo, gridType) {
+  const mergedVisited = new Set();
+
+  const snapshot = await db.collection("scores")
+    .where("pseudo", "==", pseudo)
+    .where("gridType", "==", gridType)
+    .get();
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const visited = data.visitedBounds || [];
+    visited.forEach(square => {
+      const key = `${square.south}_${square.west}`;
+      mergedVisited.add(key);
+    });
+  });
+
+  return mergedVisited;
+}
+
+
+function displayVisitedSquares(L, map, visitedSet, color = "blue") {
+  visitedSet.forEach(key => {
+    const [south, west] = key.split("_").map(Number);
+    const deltaLat = metersToDegreesLat(gridSizeMeters);
+    const deltaLng = metersToDegreesLng(gridSizeMeters, south);
+    const north = south + deltaLat;
+    const east = west + deltaLng;
+    L.rectangle([[south, west], [north, east]], {
+      color: color,
+      weight: 1,
+      fillOpacity: 0.3
+    }).addTo(map);
+  });
+}
