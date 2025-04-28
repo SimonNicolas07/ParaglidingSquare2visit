@@ -62,8 +62,8 @@ function displayVisitedSquares(L, map, visitedSet, color = "blue") {
     const east = west + deltaLng;
     L.rectangle([[south, west], [north, east]], {
       color: color,
-      weight: 0.6,
-      fillOpacity: 0.3
+      weight: 0.5,
+      fillOpacity: 0.2
     }).addTo(map);
   });
 }
