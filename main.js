@@ -79,6 +79,9 @@ function createGrid(centerLat, centerLng) {
       grid.push({ bounds, rect, visited: false });
     }
   }
+  loadAllVisitedSquares(db, pseudo, gridType).then(visitedSet => {
+    displayVisitedSquares(L, map, visitedSet, "blue");
+  });
 }
 
 function highlightCurrentSquare(lat, lng) {
@@ -452,7 +455,7 @@ async function saveSession(gridType, visitedCount) {
     console.log("Score saved with ID:", docRef.id);
 
     const badge = document.createElement("div");
-    badge.style.position = "absolute";
+    badge.style.position = "abs="olute";
     badge.style.top = "10px";
     badge.style.left = "10px";
     badge.style.padding = "12px 16px";
