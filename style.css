@@ -149,7 +149,7 @@ html, body {
 
 #gridChoiceButton {
   position: absolute;
-  bottom: 75px;
+  bottom: 73px;
   left: 20px;
   z-index: 1100;
   background: #007bff;
