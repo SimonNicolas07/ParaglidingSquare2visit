@@ -455,7 +455,7 @@ async function saveSession(gridType, visitedCount) {
     console.log("Score saved with ID:", docRef.id);
 
     const badge = document.createElement("div");
-    badge.style.position = "abs="olute";
+    badge.style.position = "absolute";
     badge.style.top = "10px";
     badge.style.left = "10px";
     badge.style.padding = "12px 16px";
