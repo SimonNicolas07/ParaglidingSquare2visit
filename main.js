@@ -403,8 +403,8 @@ async function saveSession(gridType, visitedCount) {
       const deltaLng = metersToDegreesLng(gridSizeMeters, south);
       const north = south + deltaLat;
       const east = west + deltaLng;
-    return { south, west, north, east };
-    });
+      return { south, west, north, east };
+      });
 
     // First, check by pseudo and score only
     const snapshot = await db.collection("scores")
@@ -413,7 +413,10 @@ async function saveSession(gridType, visitedCount) {
       .where("gridType", "==", gridType)
       .get();
 
+    console.log(snapshot)
+	  
     for (const doc of snapshot.docs) {
+      console.log("In same data !")
       const data = doc.data();
 
       // Now deep compare path and visitedBounds if score and pseudo match
