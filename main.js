@@ -386,6 +386,19 @@ function updatePseudoDisplay(pseudo) {
   label.textContent = `${pseudo}`;
 }
 
+function arraysEqual(a, b) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const aKeys = Object.keys(a[i]).sort();
+    const bKeys = Object.keys(b[i]).sort();
+    if (aKeys.length !== bKeys.length) return false;
+    for (let key of aKeys) {
+      if (Math.abs(a[i][key] - b[i][key]) > 0.0001) return false; // allow tiny error
+    }
+  }
+  return true;
+}
+
 async function saveSession(gridType, visitedCount) {
   try {
     const pseudo = await getOrAskPseudo();
@@ -413,19 +426,18 @@ async function saveSession(gridType, visitedCount) {
       .where("gridType", "==", gridType)
       .get();
 	  
-    for (const doc of snapshot.docs) {
-      console.log("In same data !")
-      const data = doc.data();
-
-      // Now deep compare path and visitedBounds if score and pseudo match
-      const samePath = JSON.stringify(data.pathCoords || []) === JSON.stringify(currentPath);
-      const sameVisited = JSON.stringify(data.visitedBounds || []) === JSON.stringify(currentVisited);
-
-      if (samePath && sameVisited) {
-        alert("⚠️ Déjà sauvegardé !");
-        return;
-      }
-    }
+	for (const doc of snapshot.docs) {
+	  console.log("Checking possible duplicates...");
+	  const data = doc.data();
+	
+	  const samePath = arraysEqual(data.pathCoords || [], currentPath);
+	  const sameVisited = arraysEqual(data.visitedBounds || [], currentVisited);
+	
+	  if (samePath && sameVisited) {
+	    alert("⚠️ Déjà sauvegardé !");
+	    return;
+	  }
+	}
 
     // Nothing found -> Save it
     const docRef = await db.collection("scores").add({
