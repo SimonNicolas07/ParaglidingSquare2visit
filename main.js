@@ -288,7 +288,7 @@ function parseIGCFile(file) {
 
 // Start DOMContentLoaded
 document.addEventListener("DOMContentLoaded", async () => {
-  const pseudo = await getOrAskPseudo();
+  pseudo = await getOrAskPseudo();
   updatePseudoDisplay(pseudo);
 
   if (!pseudo) {
@@ -314,8 +314,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("pseudoButton").onclick = async () => {
   localStorage.removeItem("pseudo");  // Clear the old pseudo
-  const newPseudo = await getOrAskPseudo(); // Re-ask
-  updatePseudoDisplay(newPseudo);
+  pseudo = await getOrAskPseudo(); // Re-ask
+  updatePseudoDisplay(pseudo);
   //location.reload(); // Force reload the app with new pseudo
   };
 	
@@ -405,7 +405,7 @@ function arraysEqual(a, b) {
 
 async function saveSession(gridType, visitedCount) {
   try {
-    const pseudo = await getOrAskPseudo();
+    pseudo = await getOrAskPseudo();
     if (!pseudo) return;
 
     if (visitedCount === 0) {
