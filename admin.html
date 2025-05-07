@@ -52,6 +52,7 @@
         <thead>
           <tr>
             <th>Pseudo</th>
+            <th>Glider</th>
             <th>Score</th>
             <th>Grid Type</th>
             <th>Date</th>
@@ -121,6 +122,7 @@
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td contenteditable="true">${data.pseudo}</td>
+            <td contenteditable="true">${data.paragliderType}</td>
             <td contenteditable="true">${data.score}</td>
             <td contenteditable="true">${data.gridType}</td>
             <td>${data.timestamp?.toDate().toLocaleDateString()}</td>
@@ -138,11 +140,14 @@
     function updateEntry(id, button) {
       const row = button.closest('tr');
       const pseudo = row.children[0].innerText;
-      const score = parseInt(row.children[1].innerText, 10);
-      const gridType = row.children[2].innerText;
+      const paragliderType = row.children[1].innerText;
+      console.log(paragliderType)
+      const score = parseInt(row.children[2].innerText, 10);
+      const gridType = row.children[3].innerText;
 
       db.collection("scores").doc(id).update({
         pseudo,
+        paragliderType,
         score,
         gridType
       }).then(() => alert("Updated!"));

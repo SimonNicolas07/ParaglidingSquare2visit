@@ -50,6 +50,23 @@
   </div>
   </div>
 
+  <!-- Selection type d'aile lors de la sauvegarde -->
+  <div id="gliderModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.5); z-index: 9999; align-items: center; justify-content: center;">
+   <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; max-width: 300px;">
+    <p>Catégorie de votre voile</p>
+    <select id="gliderSelect" style="width: 100%; padding: 8px; margin-bottom: 12px;">
+      <option value="A">A</option>
+      <option value="B" selected>B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+      <option value="CCC">CCC</option>
+    </select>
+    <br />
+    <button id="gliderConfirm">OK</button>
+   </div>
+  </div>
+
   <!-- For igc file -->
   <input type="file" id="igcInput" accept=".igc" style="display:none" />
 </body>

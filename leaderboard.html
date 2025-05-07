@@ -6,43 +6,67 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="leaderboard.css" />
+  <script src="mapUtils.js"></script>
 </head>
 <body>
+  <div id="mainContainer">
+    <div id="topHalf">
+      <div id="filters">
+        <label>
+          <select id="gridFilter">
+            <option value="Fayolle" selected>Fayolle</option>
+          </select>
+        </label>
+        &nbsp;&nbsp;
+        <label>
+          <select id="pseudoDropdown">
+            <option value="">Tous</option>
+          </select>
+        </label>
+        &nbsp;&nbsp;
+        <label>          
+          <select id="limitFilter">
+            <option value="5">Top 5</option>
+            <option value="10" selected>Top 10</option>
+            <option value="20">Top 20</option>
+            <option value="10000">Tous</option>
+          </select>
+        </label>
+        &nbsp;&nbsp;
+        <label>
+          <select id="modeFilter">
+            <option value="1 vol" selected>1 vol</option>
+            <option value="Cumul">Cumul</option>
+          </select>
+        </label>
+        &nbsp;&nbsp;
+        <label>
+          <select id="ENtype">
+            <option value="ALL" selected>ALL</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="CCC">CCC</option>
+          </select>
+        </label>
+      </div>
 
-  <div id="filters" style="text-align:center; margin-bottom: 20px;">
-  <label>
-    Grid:
-    <select id="gridFilter">
-      <option value="all">All</option>
-    </select>
-  </label>
-  &nbsp;&nbsp;
-  <label>
-    Pseudo:
-    <input type="text" id="pseudoFilter" placeholder="Search name" />
-  </label>
-  &nbsp;&nbsp;
-  <label>
-    Rows:
-    <select id="limitFilter">
-      <option value="5">Top 5</option>
-      <option value="10" selected>Top 10</option>
-      <option value="20">Top 20</option>
-    </select>
-  </label>
-</div>
-  
-  <h1>🏆 Paragliding Mesh Leaderboard</h1>
-  <div style="text-align: center; margin-bottom: 20px;">
-    <a href="index.html" id="backButton">← Back to Map</a>
+      <div style="text-align: center;">
+        <a href="index.html" id="backButton">← Back to Map</a>
+      </div>
+
+      <div id="leaderboard">Loading...</div>
+    </div>
+
+    <div id="bottomHalf">
+      <div id="map"></div>
+    </div>
   </div>
-  <div id="leaderboard">Loading...</div>
-  <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="leaderboard.js"></script>
-  
 </body>
 </html>

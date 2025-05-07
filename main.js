@@ -19,71 +19,21 @@ const storage = firebase.storage();
 const map = L.map('map');
 let grid = [];
 const visitedCells = new Set();
-const visitedBounds = []; // ✅ store bounds
+const visitedBounds = []; // store bounds
 const pathCoords = [];
 let pathLine = null;
 let arrowMarker = null;
-const gridSizeMeters = 200;
-const areaSizeMeters = 6000;
 let totalSquares = 0;
 let lastLat = null;
 let lastLng = null;
 let pseudo = null;
 
-function metersToDegreesLat(meters) {
-  return meters / 111320;
-}
-
-function metersToDegreesLng(meters, latitude) {
-  return meters / (40075000 * Math.cos(latitude * Math.PI / 180) / 360);
-}
-
-function snapToGrid(value, step) {
-  return Math.floor(value / step) * step;
-}
 
 function updateCounter() {
   document.getElementById('counter').textContent =
     `Visited squares: ${visitedCells.size} / ${totalSquares}`;
 }
 
-function createGrid(centerLat, centerLng) {
-  const rows = Math.floor(areaSizeMeters / gridSizeMeters);
-  const cols = rows;
-  totalSquares = rows * cols;
-  updateCounter();
-
-  const deltaLat = metersToDegreesLat(gridSizeMeters);
-  const deltaLng = metersToDegreesLng(gridSizeMeters, centerLat);
-
-  const startLat = snapToGrid(centerLat, deltaLat) - (rows / 2) * deltaLat;
-  const startLng = snapToGrid(centerLng, deltaLng) - (cols / 2) * deltaLng;
-
-  const centerGridLat = startLat + (rows / 2) * deltaLat;
-  const centerGridLng = startLng + (cols / 2) * deltaLng;
-  map.setView([centerGridLat, centerGridLng], 14);
-
-
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      const south = startLat + i * deltaLat;
-      const west = startLng + j * deltaLng;
-      const north = south + deltaLat;
-      const east = west + deltaLng;
-
-      const bounds = [[south, west], [north, east]];
-      const rect = L.rectangle(bounds, {
-        color: "#000",
-        weight: 1,
-        fillOpacity: 0.1
-      }).addTo(map);
-      grid.push({ bounds, rect, visited: false });
-    }
-  }
-  loadAllVisitedSquares(db, pseudo, currentGridType).then(visitedSet => {
-    displayVisitedSquares(L, map, visitedSet, "blue");
-  });
-}
 
 function highlightCurrentSquare(lat, lng) {
   grid.forEach(cell => {
@@ -145,7 +95,11 @@ L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
 
 // debut initmap
 function initMap(centerLat, centerLng, useGPS = true) {
-  createGrid(centerLat, centerLng);
+  totalSquares = createGrid(map, centerLat, centerLng, grid);
+  updateCounter() ;
+  loadAllVisitedSquares(db, pseudo, currentGridType).then(visitedDic => {
+    displayVisitedSquares(L, map, visitedDic.mergedVisited, "blue");
+  });
 
 grid.forEach(cell => {
     const [[south, west]] = cell.bounds;
@@ -185,8 +139,23 @@ function showGridModal(callback) {
     const modal = document.getElementById("startup-modal");
     modal.style.display = "flex";
 
-    fetch('startPoints.json')
-      .then(res => res.json())
+   const githubURL = "https://raw.githubusercontent.com/simonnicolas07/ParaglidingSquare2visit/main/startPoints.json";
+   const fallbackPoints = [
+    { name: "Fayolle", lat: 46.1083495, lng: 4.6189530 },
+    { name: "Use GPS", gps: true }
+  ];
+
+  const source = location.protocol === "file:" ? githubURL : "startPoints.json";
+
+    fetch(source)
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to load startPoints.json");
+      return res.json();
+    })
+    .catch(err => {
+      console.warn("Using fallback start points:", err);
+      return fallbackPoints;
+    })
       .then(points => {
         const container = document.getElementById('start-buttons');
         container.innerHTML = '';
@@ -408,8 +377,8 @@ async function saveSession(gridType, visitedCount) {
     pseudo = await getOrAskPseudo();
     if (!pseudo) return;
 
-    if (visitedCount === 0) {
-      alert("⚠️ Score = 0 non sauvegardé");
+    if (visitedCount < 3) {
+      alert("⚠️ Score < 3 non sauvegardé");
       return;
     }
 
@@ -430,51 +399,69 @@ async function saveSession(gridType, visitedCount) {
       .where("gridType", "==", gridType)
       .get();
 	  
-	for (const doc of snapshot.docs) {
-	  console.log("Checking possible duplicates...");
-	  const data = doc.data();
-	
-	  const samePath = arraysEqual(data.pathCoords || [], currentPath);
-	  const sameVisited = arraysEqual(data.visitedBounds || [], currentVisited);
-	
-	  if (samePath && sameVisited) {
-	    alert("⚠️ Déjà sauvegardé !");
-	    return;
-	  }
-	}
+  	for (const doc of snapshot.docs) {
+  	  console.log("Checking possible duplicates...");
+  	  const data = doc.data();
+  	
+  	  const samePath = arraysEqual(data.pathCoords || [], currentPath);
+  	  const sameVisited = arraysEqual(data.visitedBounds || [], currentVisited);
+  	
+  	  if (samePath && sameVisited) {
+  	    alert("⚠️ Déjà sauvegardé !");
+  	    return;
+  	  }
+  	}
 
     // Nothing found -> Save it
-    const docRef = await db.collection("scores").add({
-      pseudo,
-      score: visitedCount,
-      gridType,
-      timestamp: igcDate ? firebase.firestore.Timestamp.fromDate(igcDate) : firebase.firestore.FieldValue.serverTimestamp(),
-      pathCoords: currentPath,
-      visitedBounds: currentVisited
+    // first take glider type
+    return new Promise((resolve) => {
+      const modal = document.getElementById("gliderModal");
+      const select = document.getElementById("gliderSelect");
+      const confirmBtn = document.getElementById("gliderConfirm");
+
+      modal.style.display = "flex";
+
+      confirmBtn.onclick = async () => {
+        const paragliderType = select.value;
+        modal.style.display = "none";
+        
+        // SAVE IT
+        const docRef = await db.collection("scores").add({
+          pseudo,
+          paragliderType,
+          score: visitedCount,
+          gridType,
+          timestamp: igcDate ? firebase.firestore.Timestamp.fromDate(igcDate) : firebase.firestore.FieldValue.serverTimestamp(),
+          pathCoords: currentPath,
+          visitedBounds: currentVisited
+        });
+
+        console.log("Score saved with ID:", docRef.id);
+
+        const badge = document.createElement("div");
+        badge.style.position = "absolute";
+        badge.style.top = "10px";
+        badge.style.left = "10px";
+        badge.style.padding = "12px 16px";
+        badge.style.background = "rgba(0, 0, 0, 0.7)";
+        badge.style.color = "white";
+        badge.style.fontSize = "16px";
+        badge.style.fontFamily = "sans-serif";
+        badge.style.borderRadius = "8px";
+        badge.style.zIndex = "9999";
+        badge.innerHTML = `
+          <strong>${gridType}</strong><br>
+          🧍 ${pseudo}<br>
+          🪂 ${paragliderType}<br>
+          📈 ${visitedCount} squares<br>
+          📅 ${new Date().toLocaleDateString()}
+        `;
+        document.body.appendChild(badge);
+
+        alert("✅ Score saved!");
+        resolve();
+      };
     });
-
-    console.log("Score saved with ID:", docRef.id);
-
-    const badge = document.createElement("div");
-    badge.style.position = "absolute";
-    badge.style.top = "10px";
-    badge.style.left = "10px";
-    badge.style.padding = "12px 16px";
-    badge.style.background = "rgba(0, 0, 0, 0.7)";
-    badge.style.color = "white";
-    badge.style.fontSize = "16px";
-    badge.style.fontFamily = "sans-serif";
-    badge.style.borderRadius = "8px";
-    badge.style.zIndex = "9999";
-    badge.innerHTML = `
-      <strong>${gridType}</strong><br>
-      🧍 ${pseudo}<br>
-      📈 ${visitedCount} squares<br>
-      📅 ${new Date().toLocaleDateString()}
-    `;
-    document.body.appendChild(badge);
-
-    alert("✅ Score saved!");
 
   } catch (err) {
     console.error("Save error:", err);
