@@ -432,6 +432,7 @@ async function saveSession(gridType, visitedCount) {
           score: visitedCount,
           gridType,
           timestamp: igcDate ? firebase.firestore.Timestamp.fromDate(igcDate) : firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           pathCoords: currentPath,
           visitedBounds: currentVisited
         });

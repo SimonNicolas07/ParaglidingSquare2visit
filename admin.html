@@ -34,6 +34,9 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    .new-entry {
+      background-color: #ffffcc; /* Light yellow */
+    }
   </style>
 </head>
 <body>
@@ -42,12 +45,13 @@
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
     <button onclick="login()">Login</button>
-    <button onclick="sendPasswordReset()">Forgot Password?</button>
+    <button onclick="sendPasswordReset()">Forgot Password?</button>   
   </div>
   <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px;">
     <div id="admin" style="flex: 1; margin: 0;">
        <!-- Leaderboard table stays the same -->
       <button onclick="logout()">Logout</button>
+      <button onclick="checkNewEntries()">🔍 Check for New Scores</button>
       <table border="1" id="leaderboardTable" style="width: 100%;">
         <thead>
           <tr>
@@ -79,6 +83,8 @@
 
     const loginDiv = document.getElementById('login');
     const adminDiv = document.getElementById('admin');
+
+    let newEntryIds = [];
 
     auth.onAuthStateChanged(user => {
       if (user) {
@@ -120,6 +126,11 @@
         snapshot.forEach(doc => {
           const data = doc.data();
           const tr = document.createElement('tr');
+
+          if (newEntryIds.includes(doc.id)) {
+              tr.classList.add("new-entry");
+          }
+
           tr.innerHTML = `
             <td contenteditable="true">${data.pseudo}</td>
             <td contenteditable="true">${data.paragliderType}</td>
@@ -136,6 +147,39 @@
         });
       });
     }
+
+
+    async function checkNewEntries() {
+      const lastCheck = localStorage.getItem("lastCheckTime");
+      const lastTimestamp = lastCheck ? new Date(lastCheck) : new Date(0);
+
+      console.log(lastTimestamp);
+
+      const snapshot = await db.collection("scores")
+        .where("createdAt", ">", firebase.firestore.Timestamp.fromDate(lastTimestamp))
+        .orderBy("createdAt", "desc")
+        .get();
+
+      if (snapshot.empty) {
+        alert("No new entries since last check.");
+      } else {
+        const newEntries = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        alert(`✅ ${newEntries.length} new submission(s) found!`);
+        console.log("New entries:", newEntries);
+
+        // Optionally display or highlight them
+        newEntryIds = snapshot.docs.map(doc => doc.id); // Save new entry IDs
+        localStorage.setItem("lastCheck", new Date().toISOString());
+        loadLeaderboard(); // Re-render to apply highlights
+      }
+
+      localStorage.setItem("lastCheckTime", new Date().toISOString());
+    }
+
 
     function updateEntry(id, button) {
       const row = button.closest('tr');
