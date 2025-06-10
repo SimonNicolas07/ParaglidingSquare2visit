@@ -161,7 +161,6 @@ function renderTable(data, gridType) {
   table.appendChild(thead);
 
   const tbody = document.createElement("tbody");
-
   data.forEach((entry, index) => {
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -214,11 +213,7 @@ function ShowCumul(visitedSquare) {
 
 // Fetch and populate leaderboard
 function loadLeaderboard() {
-  db.collection("scores")
-    .orderBy("score", "desc")
-    .orderBy("timestamp", "desc")
-    .get()
-    .then(snapshot => {
+  db.collection("scores").get().then(snapshot => {    
       fullData = {};
       const gridSelect = document.getElementById("gridFilter");
       const gridsSeen = new Set(["Fayolle"]); // Fayolle already in HTML, skip it
@@ -243,7 +238,7 @@ function loadLeaderboard() {
     .catch(err => {
       document.getElementById("leaderboard").innerHTML = "<p>Error loading leaderboard.</p>";
       console.error(err);
-    });
+    }); 
 }
 
 
