@@ -122,7 +122,7 @@
     function loadLeaderboard() {
       const tbody = document.querySelector('#leaderboardTable tbody');
       tbody.innerHTML = '';
-      db.collection("scores").orderBy("timestamp", "desc").get().then(snapshot => {
+      db.collection("scores").get().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data();
           const tr = document.createElement('tr');
