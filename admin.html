@@ -120,11 +120,17 @@
     }
 
     function loadLeaderboard() {
+      const now = new Date();
       const tbody = document.querySelector('#leaderboardTable tbody');
       tbody.innerHTML = '';
       db.collection("scores").get().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data();
+          const timestamp = data.timestamp?.toDate?.();
+          // 🔍 Check if timestamp is in the future
+          if (timestamp && timestamp > now) {
+            console.warn(`🚨 Future timestamp found in doc ${doc.id}:`, timestamp.toISOString());
+          }
           const tr = document.createElement('tr');
 
           if (newEntryIds.includes(doc.id)) {
@@ -148,6 +154,25 @@
       });
     }
 
+
+    async function diagnoseTimestamps() {
+      console.log("🔍 Starting timestamp diagnostics...");
+
+      const snapshot = await db.collection("scores").get();
+      let badDocs = 0;
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const ts = data.timestamp;
+
+        if (!ts || typeof ts.toDate !== "function") {
+          console.warn(`⚠️ Invalid or missing timestamp in doc ID: ${doc.id}`, ts);
+          badDocs++;
+        }
+      });
+
+      console.log(`✅ Done. Found ${badDocs} invalid timestamps out of ${snapshot.size} documents.`);
+    }
 
     async function checkNewEntries() {
       const lastCheck = localStorage.getItem("lastCheckTime");

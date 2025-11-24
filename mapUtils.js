@@ -42,7 +42,7 @@ function createGrid(map, centerLat, centerLng, grid=[]) {
       const bounds = [[south, west], [north, east]];
       const rect = L.rectangle(bounds, {
         color: "#000",
-        weight: 1,
+        weight: 0.3,
         fillOpacity: 0.1
       }).addTo(map);
       grid.push({ bounds, rect, visited: false });

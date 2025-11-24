@@ -184,6 +184,7 @@ function renderTable(data, gridType) {
 
 function ThisShowOnMap(bounds, path, pseudo) {
     const currentGridType = document.getElementById("gridFilter").value;
+    const squaresChoice = document.getElementById("SquareFilter").value;
 
     getGridCenterByName(currentGridType).then(center => {
       if (center) {        
@@ -192,9 +193,12 @@ function ThisShowOnMap(bounds, path, pseudo) {
       }
     });
     
-    loadAllVisitedSquares(db, pseudo, currentGridType).then(visitedDic => {
-      displayVisitedSquares(L, map, visitedDic.mergedVisited, "blue");
-    });
+    if (squaresChoice == "GreenAndBlue") {
+        loadAllVisitedSquares(db, pseudo, currentGridType).then(visitedDic => {
+          displayVisitedSquares(L, map, visitedDic.mergedVisited, "blue");
+        });
+    }
+
 } 
 
 
