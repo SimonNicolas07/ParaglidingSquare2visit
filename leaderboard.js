@@ -42,7 +42,8 @@ function renderLeaderboard() {
     const filteredEntries = entries
       .filter(e => {
         const pseudoMatch = e.pseudo.toLowerCase().includes(pseudoDropdown);
-        const gliderMatch = ENtype === "ALL" || e.paragliderType === ENtype;
+        const gliderMatch = ENtype === "ALL" || // ok pour tous
+                            ENtype.includes(e.paragliderType); // ok pour A si A, A et B si AB etc.
         return pseudoMatch && gliderMatch;
       })
       .sort((a, b) => b.score - a.score)
