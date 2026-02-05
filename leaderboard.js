@@ -17,13 +17,13 @@ L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png',
 let fullData = {}; // Store all leaderboard entries
 
 
-
 function renderLeaderboard() {
   const gridFilter = document.getElementById("gridFilter").value;
   const pseudoDropdown = document.getElementById("pseudoDropdown").value.toLowerCase();
   const limit = parseInt(document.getElementById("limitFilter").value);
   const mode = document.getElementById("modeFilter").value;
   const ENtype = document.getElementById("ENtype").value;
+  const annee = document.getElementById("YearSelection").value;
 
   const container = document.getElementById("leaderboard");
   container.innerHTML = "";
@@ -218,16 +218,32 @@ function ShowCumul(visitedSquare) {
 
 // Fetch and populate leaderboard
 function loadLeaderboard() {
-  db.collection("scores").get().then(snapshot => {    
+  //db.collection("scores").get().then(snapshot => {    
+  const selectedYear = document.getElementById("YearSelection").value; // annee selected
+  // on cree un objet date debut et date fin
+  const startdate = new Date(`${selectedYear}-01-01T00:00:00.000Z`); 
+  const enddate = new Date(`${selectedYear}-12-31T23:59:59.999Z`);
+  // on convertit en timestamp pour comparer avec le timestamp firebase
+  const startTs = firebase.firestore.Timestamp.fromDate(startdate);
+  const endTs = firebase.firestore.Timestamp.fromDate(enddate);
+
+  db.collection("scores").where("timestamp", ">=", startTs)
+                         .where("timestamp", "<=", endTs)
+                         .get().then(snapshot => {      
       fullData = {};
       const gridSelect = document.getElementById("gridFilter");
       const gridsSeen = new Set(["Fayolle"]); // Fayolle already in HTML, skip it
+      
 
       snapshot.forEach(doc => {
         const data = doc.data();
         const grid = data.gridType || "Unknown";
+        const entryDate = new Date(data.timestamp.seconds*1000);
+        const entryYear = entryDate.getFullYear();
+        
         if (!fullData[grid]) fullData[grid] = [];
         fullData[grid].push(data);
+
 
       if (!gridsSeen.has(grid) && grid !== "Fayolle") {
         const opt = document.createElement("option");
@@ -292,6 +308,10 @@ document.getElementById("gridFilter").addEventListener("change", () => {
 
 document.getElementById("modeFilter").addEventListener("change", () => {
     renderLeaderboard();
+});
+
+document.getElementById("YearSelection").addEventListener("change", () => {
+    loadLeaderboard();
 });
 
 
