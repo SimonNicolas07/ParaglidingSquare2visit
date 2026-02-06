@@ -23,7 +23,6 @@ function renderLeaderboard() {
   const limit = parseInt(document.getElementById("limitFilter").value);
   const mode = document.getElementById("modeFilter").value;
   const ENtype = document.getElementById("ENtype").value;
-  const annee = document.getElementById("YearSelection").value;
 
   const container = document.getElementById("leaderboard");
   container.innerHTML = "";
@@ -68,14 +67,10 @@ async function renderCumulativeLeaderboard(gridFilter, pseudoFilter, limit) {
 
   try {
     // Step 1: Get all unique pseudos for this grid
-    const snapshot = await db.collection("scores").where("gridType", "==", gridFilter).get();
-    const pseudoSet = new Set();
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.pseudo) pseudoSet.add(data.pseudo);
+    const pseudoSet = new Set()
+    fullData[gridFilter].forEach(elem => {
+      if (elem.pseudo) pseudoSet.add(elem.pseudo);
     });
-
     const pseudos = Array.from(pseudoSet);
 
     // Step 2: Load visited squares for each pseudo
