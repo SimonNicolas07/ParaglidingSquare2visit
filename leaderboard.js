@@ -20,6 +20,7 @@ let fullData = {}; // Store all leaderboard entries
 function renderLeaderboard() {
   const gridFilter = document.getElementById("gridFilter").value;
   const pseudoDropdown = document.getElementById("pseudoDropdown").value.toLowerCase();
+  const dayDropdown = document.getElementById("dayDropdown").value;
   const limit = parseInt(document.getElementById("limitFilter").value);
   const mode = document.getElementById("modeFilter").value;
   const ENtype = document.getElementById("ENtype").value;
@@ -40,10 +41,15 @@ function renderLeaderboard() {
   filtered.forEach(([gridType, entries]) => {
     const filteredEntries = entries
       .filter(e => {
+
+        // --- FILTRE DATE ---
+        const entryDateISO = getLocalISODateFromTimestamp(e.timestamp);
+        const dateMatch = (dayDropdown === "all") || (entryDateISO === dayDropdown);
+        // --- FILTRE PSEUDO et GLIDER
         const pseudoMatch = e.pseudo.toLowerCase().includes(pseudoDropdown);
         const gliderMatch = ENtype === "ALL" || // ok pour tous
                             ENtype.includes(e.paragliderType); // ok pour A si A, A et B si AB etc.
-        return pseudoMatch && gliderMatch;
+        return pseudoMatch && gliderMatch && dateMatch;
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, limit);
@@ -249,6 +255,7 @@ function loadLeaderboard() {
       }
       });
       updatePseudoDropdown();
+      updateDayDropdown();
       renderLeaderboard();
     })
     .catch(err => {
@@ -283,6 +290,54 @@ function updatePseudoDropdown() {
 }
 
 
+// fonction qui renvoie un string a partir de l'objet timestamp de firestore
+function getLocalISODateFromTimestamp(ts) {
+  const date = new Date(ts.seconds * 1000);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+// fonction qui cree un dictionnaire de date format iso : texte
+// a chaque fois qu'on change de grid
+function buildDateDictionary() {
+  const dict = new Map();
+  const gridFilter = document.getElementById("gridFilter").value;
+
+  fullData[gridFilter].forEach(entry => {
+    const iso = getLocalISODateFromTimestamp(entry.timestamp);
+    const label = new Date(entry.timestamp.seconds * 1000).toLocaleDateString("fr-FR");
+    dict.set(iso, label); // set() garde UNIQUEMENT les dates uniques
+  });
+
+  // Convertir en tableau trié : [ [iso, label], ... ]
+  return [...dict.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+}
+
+
+
+function updateDayDropdown() {
+  const dicDate = buildDateDictionary();
+  const select = document.getElementById("dayDropdown");
+  select.innerHTML = ""; // reset
+
+  // Option : All days
+  const optionAll = document.createElement("option");
+  optionAll.value = "all";
+  optionAll.textContent = "All days";
+  select.appendChild(optionAll);
+
+  // Ajouter toutes les dates triées
+  dicDate.forEach(([iso, label]) => {
+    const opt = document.createElement("option");
+    opt.value = iso;   // clé interne
+    opt.textContent = label; // affichage
+    select.appendChild(opt);
+  });
+}
+
+
 // Listen to filters
 ["gridFilter",  "limitFilter", "modeFilter"].forEach(id => {
   document.getElementById(id).addEventListener("input", renderLeaderboard);
@@ -295,9 +350,17 @@ document.getElementById("pseudoDropdown").addEventListener("change", (event) => 
 });
 
 
-document.getElementById("gridFilter").addEventListener("change", () => {
+document.getElementById("dayDropdown").addEventListener("change", (event) => {
+  const selectedDay = event.target.value;
+  document.getElementById("dayDropdown").value = selectedDay;
   renderLeaderboard();
+});
+
+
+document.getElementById("gridFilter").addEventListener("change", () => {
   updatePseudoDropdown();
+  updateDayDropdown();
+  renderLeaderboard();
 });
 
 
